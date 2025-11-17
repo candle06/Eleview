@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.2</title>
+<title>Eleview V1.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; transition: background 0.3s;}
@@ -19,8 +19,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 .btn{background:linear-gradient(180deg,#9b5cff 0%,#6e22ff 100%); border:none; color:#fff; padding:10px; border-radius:10px; font-weight:600; cursor:pointer; width:100%;}
 #result-list{margin-top:16px; display:flex; flex-direction:column; gap:12px; padding-bottom:60px;}
 .card{background:rgba(255,255,255,0.06); border-radius:12px; padding:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4); backdrop-filter:blur(10px);}
-#customBtn { position: absolute; top: 10px; right: 10px; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; background:none; border:2px solid #d67cff; color: #d67cff; cursor: pointer; box-shadow:none; transition: all 0.3s ease; text-shadow: 0 0 6px rgba(255,255,255,0.3);}
-#customBtn:hover { transform: translateY(-2px); box-shadow: 0 0 12px rgba(155,92,255,0.7); }
 #customModal, #historyModal{display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10;}
 #customModal{background:rgba(0,0,0,0.7);}
 #customContent, #historyContentBox{background:rgba(0,0,0,1); padding:20px; border-radius:12px; display:flex; flex-direction:column; gap:10px;}
@@ -36,17 +34,25 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-   <a href="https://open.kakao.com/o/sYLH7W1h" target="_blank"
-     style="position:absolute; left:10px; top:50%; transform:translateY(-50%);
-            padding:8px 14px; border-radius:12px; font-weight:600; font-size:13px;
-            background:none; border:2px solid #9b5cff; color:#9b5cff; cursor:pointer; 
-            text-decoration:none; text-shadow:0 0 6px rgba(255,255,255,0.25);
-            transition: all 0.3s ease;">
-    📩 문의
-  </a>
-  <div class="logo">Eleview V1.2</div>
-  <button id="customBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);">⚙️ 설정</button>
+  <div class="logo">Eleview V1.3</div>
+
+  <!-- 햄버거 버튼 -->
+  <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+        background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">☰</button>
+
+  <!-- 햄버거 메뉴 패널 -->
+  <div id="menuPanel" style="display:none; position:absolute; top:60px; right:10px; 
+      background:rgba(0,0,0,0.85); border-radius:12px; padding:10px; flex-direction:column; gap:8px; min-width:160px; z-index:5;">
+    <a href="https://open.kakao.com/o/sYLH7W1h" target="_blank"
+       style="color:#9b5cff; font-weight:600; text-decoration:none; display:block; padding:6px 0;">📩 문의</a>
+    <a href="https://naver.me/GcKVxHTB" target="_blank"
+       style="color:#00c73c; font-weight:600; text-decoration:none; display:block; padding:6px 0;">🏠 카페 바로가기</a>
+    <button id="customBtnMenu" style="background:none; border:2px solid #d67cff; color:#d67cff; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0;">
+      ⚙️ 설정
+    </button>
+  </div>
 </header>
+
 <div class="subtitle">
   승강기 정보 조회
   <div id="visitorCount">접속자: 0명</div>
@@ -83,7 +89,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.2 - 제작자 : 마녀
+  @2025 Eleview V1.3 - 제작자 : 마녀
 </div>
 
 <!-- Firebase SDK -->
@@ -91,7 +97,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  // ==== Firebase 실시간 동접자 (TTL 방식) ====
+  // ==== Firebase 동접자 ====
   const firebaseConfig = {
     apiKey: "AIzaSyApdyHj-1DiEsOG7XZ6zmDLIEwtLJZ70Js",
     authDomain: "elev-5374e.firebaseapp.com",
@@ -104,240 +110,203 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-
   const visitorRef = db.ref('visitors');
   const visitorId = Date.now() + '_' + Math.floor(Math.random() * 1000);
-
-  // 처음 접속 시 기록
-  function updateVisitor(){
-    visitorRef.child(visitorId).set({ lastActive: Date.now() });
-  }
-  updateVisitor();
-
-  // 5초마다 갱신
-  setInterval(updateVisitor, 5000);
-
-  // 실시간 동접자 표시
+  function updateVisitor(){ visitorRef.child(visitorId).set({ lastActive: Date.now() }); }
+  updateVisitor(); setInterval(updateVisitor, 5000);
   visitorRef.on('value', snapshot => {
     const now = Date.now();
     let count = 0;
-    snapshot.forEach(child => {
-      if(now - child.val().lastActive < 15000) count++; // 15초 이상 활동 없으면 제외
-    });
+    snapshot.forEach(child => { if(now - child.val().lastActive < 15000) count++; });
     document.getElementById('visitorCount').textContent = `접속자: ${count}명`;
   });
 
-// ==== 기본 변수 ====
-const inputNo = document.getElementById('elevatorNo');
-const inputAddr = document.getElementById('buldAddress');
-const btn = document.getElementById('searchBtn');
-const list = document.getElementById('result-list');
-let visitorCount = 0;
-let remainingTraffic = 10000;
-let searchLogs = [];
+  // ==== 햄버거 메뉴 ====
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+  const customBtnMenu = document.getElementById('customBtnMenu');
+  menuBtn.addEventListener('click', ()=>{ menuPanel.style.display = menuPanel.style.display === 'flex' ? 'none' : 'flex'; });
+  customBtnMenu.addEventListener('click', ()=>{ document.getElementById('customModal').style.display='flex'; menuPanel.style.display='none'; });
+  window.addEventListener('click', (e)=>{ if(!menuPanel.contains(e.target) && e.target!==menuBtn) menuPanel.style.display='none'; });
 
-// ==== API ====
-const serviceKey = '6a8c61a1b9e03198dc42d9460e8bf434e703bc3d0989512930046a21a68e1432';
-const API_OPERATION = 'https://apis.data.go.kr/B553664/ElevatorOperationService/getOperationInfoListV1';
-const API_VIEW = 'https://apis.data.go.kr/B553664/ElevatorInformationService/getElevatorViewM';
-const API_HISTORY = 'https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrInspctInqireM';
+  // ==== 검색 & API & 결과 ====
+  const inputNo=document.getElementById('elevatorNo');
+  const inputAddr=document.getElementById('buldAddress');
+  const btn=document.getElementById('searchBtn');
+  const list=document.getElementById('result-list');
+  const serviceKey='6a8c61a1b9e03198dc42d9460e8bf434e703bc3d0989512930046a21a68e1432';
+  const API_OPERATION='https://apis.data.go.kr/B553664/ElevatorOperationService/getOperationInfoListV1';
+  const API_VIEW='https://apis.data.go.kr/B553664/ElevatorInformationService/getElevatorViewM';
+  const API_HISTORY='https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrInspctInqireM';
+  function getElevatorIcon(type){
+    if(!type) return ['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
+    type=type.trim(); let icons=[];
+    if(type.includes('승객')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/elevator.png');
+    if(type.includes('전망')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/mountain.png');
+    if(type.includes('병원')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/hospital.png');
+    if(type.includes('장애인')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/wheelchair.png');
+    if(type.includes('소방구조')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/fire-truck.png');
+    if(type.includes('피난')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/exit.png');
+    if(type.includes('주택')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/home.png');
+    if(type.includes('화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/package.png');
+    if(type.includes('자동차')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/car.png');
+    if(type.includes('소형화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/small-package.png');
+    return icons.length?icons:['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
+  }
 
-function getElevatorIcon(type){
-  if(!type) return ['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
-  type=type.trim(); let icons=[];
-  if(type.includes('승객')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/elevator.png');
-  if(type.includes('전망')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/mountain.png');
-  if(type.includes('병원')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/hospital.png');
-  if(type.includes('장애인')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/wheelchair.png');
-  if(type.includes('소방구조')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/fire-truck.png');
-  if(type.includes('피난')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/exit.png');
-  if(type.includes('주택')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/home.png');
-  if(type.includes('화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/package.png');
-  if(type.includes('자동차')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/car.png');
-  if(type.includes('소형화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/small-package.png');
-  return icons.length?icons:['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
-}
-
-// ==== 검색 버튼 ====
-btn.addEventListener('click', async () => {
-    const query = inputNo.value.trim();
-    visitorCount++;
-    if(!query && !inputAddr.value.trim()){
-        list.innerHTML = '<p>승강기 번호 또는 건물주소를 입력해주세요.</p>';
-        return;
-    }
-
-    searchLogs.push(`${query || inputAddr.value.trim()} 검색 - ${new Date().toLocaleString()}`);
-    remainingTraffic--;
-
-    const params = new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
+  btn.addEventListener('click', async ()=>{
+    const query=inputNo.value.trim();
+    if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
+    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
-
-    list.innerHTML = '';
+    list.innerHTML='';
     try{
-        const res = await fetch(`${API_OPERATION}?${params}`);
-        const xmlText = await res.text();
-        const xml = new DOMParser().parseFromString(xmlText, "text/xml");
-        const items = Array.from(xml.getElementsByTagName("item"));
+      const res=await fetch(`${API_OPERATION}?${params}`);
+      const xmlText=await res.text();
+      const xml=new DOMParser().parseFromString(xmlText,"text/xml");
+      const items=Array.from(xml.getElementsByTagName("item"));
+      if(items.length===0){ list.innerHTML='<p>검색 결과가 없습니다.</p>'; return; }
+      for(const item of items){
+        const get=(t)=>item.getElementsByTagName(t)[0]?.textContent||'';
+        const elevatorNo=get("elevatorNo");
+        const kind=get("elvtrKindNm");
+        const icons=getElevatorIcon(kind);
+        const viewUrl=`${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+        const viewRes=await fetch(viewUrl);
+        const viewXml=await viewRes.text();
+        const viewDoc=new DOMParser().parseFromString(viewXml,"text/xml");
+        const viewItem=viewDoc.getElementsByTagName("item")[0];
+        const v=(t)=>viewItem?.getElementsByTagName(t)[0]?.textContent||'';
+        const historyUrl=`${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+        const hisRes=await fetch(historyUrl);
+        const hisXml=await hisRes.text();
+        const hisDoc=new DOMParser().parseFromString(hisXml,"text/xml");
+        const historyItems=Array.from(hisDoc.getElementsByTagName("item"));
+        const shuttleFloor=get("shuttleFloorCnt")||v("shuttleFloorCnt")||'N/A';
+        const speed=get("ratedSpeed")||v("ratedSpeed");
+        const speedMMin=speed?(parseFloat(speed)*60).toFixed(1):'N/A';
+        const liveLoad=get("liveLoad")||v("liveLoad");
+        const liveLoadDisplay=liveLoad?`${liveLoad} kg`:'N/A';
+        const div=document.createElement('div');
+        div.className='card';
+        div.innerHTML=`
+          <h3>${get("buldNm")||v("buldNm")}</h3>
+          <div class='meta'>${elevatorNo} • ${get("elvtrDiv")}</div>
+          <div class='info'>
+          <strong>주소1/2:</strong> ${get("address1")} / ${get("address2")}<br>
+          <strong>시도/시군구:</strong> ${get("sido")} / ${get("sigungu")}<br>
+          <strong>승강기호기:</strong> ${get("elvtrAsignNo")}<br>
+          <strong>승강기형식/세부형식:</strong> ${get("elvtrForm")} / ${get("elvtrDetailForm")}<br>
+          <strong>모델명:</strong> ${get("elvtrModel")}<br>
+          <strong>승강기종류:</strong> ${kind} ${icons.map(i=>`<img src="${i}" style="width:24px;height:24px;margin-right:4px;">`).join('')}<br>
+          <strong>설치일자:</strong> 최초: ${get("frstInstallationDe")} / 최근: ${get("installationDe")}<br>
+          <strong>설치장소:</strong> ${get("installationPlace")}<br>
+          <strong>운행층수:</strong> ${shuttleFloor}층<br>
+          <strong>정격속도:</strong> ${speedMMin} m/min<br>
+          <strong>적재하중:</strong> ${liveLoadDisplay}<br>
+          <strong>최대정원:</strong> ${get("ratedCap")}<br>
+          <strong>제조사:</strong> ${get("mnfcturCpnyNm")} / ${get("companyNm")}<br>
+          <strong>유효기간:</strong> ${get("applcBeDt")} ~ ${get("applcEnDt")}<br>
+          <strong>관리기관:</strong> ${get("inspctInsttNm")}<br>
+          <strong>승강기상태:</strong> ${get("elvtrSttsNm")}<br>
+          <button class="btn view-history-btn" data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
+            const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent||'';
+            return { inspctDt:hget("inspctDt"), inspctInsttNm:hget("inspctInsttNm"), inspctKind:hget("inspctKind"), psexamYn:hget("psexamYn") };
+          })))}'>📌 검사이력 보기</button>
+          </div>`;
+        list.appendChild(div);
+      }
+    }catch(e){ list.innerHTML=`<p>오류: ${e.message}</p>`; }
+  });
 
-        if(items.length === 0){ list.innerHTML = '<p>검색 결과가 없습니다.</p>'; return; }
-
-        for(const item of items){
-            const get=(t)=>item.getElementsByTagName(t)[0]?.textContent||'';
-            const elevatorNo = get("elevatorNo");
-            const kind = get("elvtrKindNm");
-            const icons = getElevatorIcon(kind);
-
-            const viewUrl = `${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-            const viewRes = await fetch(viewUrl);
-            const viewXml = await viewRes.text();
-            const viewDoc = new DOMParser().parseFromString(viewXml, "text/xml");
-            const viewItem = viewDoc.getElementsByTagName("item")[0];
-            const v = (t)=>viewItem?.getElementsByTagName(t)[0]?.textContent||'';
-
-            const historyUrl = `${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-            const hisRes = await fetch(historyUrl);
-            const hisXml = await hisRes.text();
-            const hisDoc = new DOMParser().parseFromString(hisXml,"text/xml");
-            const historyItems = Array.from(hisDoc.getElementsByTagName("item"));
-
-            const shuttleFloor = get("shuttleFloorCnt") || v("shuttleFloorCnt") || 'N/A';
-            const speed = get("ratedSpeed") || v("ratedSpeed");
-            const speedMMin = speed ? (parseFloat(speed)*60).toFixed(1) : 'N/A';
-            const liveLoad = get("liveLoad") || v("liveLoad");
-            const liveLoadDisplay = liveLoad ? `${liveLoad} kg` : 'N/A';
-
-            const div = document.createElement('div');
-            div.className='card';
-            div.innerHTML=`
-                <h3>${get("buldNm")||v("buldNm")}</h3>
-                <div class='meta'>${elevatorNo} • ${get("elvtrDiv")}</div>
-                <div class='info'>
-                <strong>주소1/2:</strong> ${get("address1")} / ${get("address2")}<br>
-                <strong>시도/시군구:</strong> ${get("sido")} / ${get("sigungu")}<br>
-                <strong>승강기호기:</strong> ${get("elvtrAsignNo")}<br>
-                <strong>승강기형식/세부형식:</strong> ${get("elvtrForm")} / ${get("elvtrDetailForm")}<br>
-                <strong>모델명:</strong> ${get("elvtrModel")}<br>
-                <strong>승강기종류:</strong> ${kind} ${icons.map(i=>`<img src="${i}" style="width:24px;height:24px;margin-right:4px;">`).join('')}<br>
-                <strong>설치일자:</strong> 최초: ${get("frstInstallationDe")} / 최근: ${get("installationDe")}<br>
-                <strong>설치장소:</strong> ${get("installationPlace")}<br>
-                <strong>운행층수:</strong> ${shuttleFloor}층<br>
-                <strong>정격속도:</strong> ${speedMMin} m/min<br>
-                <strong>적재하중:</strong> ${liveLoadDisplay}<br>
-                <strong>최대정원:</strong> ${get("ratedCap")}<br>
-                <strong>제조사:</strong> ${get("mnfcturCpnyNm")} / ${get("companyNm")}<br>
-                <strong>유효기간:</strong> ${get("applcBeDt")} ~ ${get("applcEnDt")}<br>
-                <strong>관리기관:</strong> ${get("inspctInsttNm")}<br>
-                <strong>승강기상태:</strong> ${get("elvtrSttsNm")}<br>
-                <button class="btn view-history-btn" data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
-                    const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent||'';
-                    return { inspctDt:hget("inspctDt"), inspctInsttNm:hget("inspctInsttNm"), inspctKind:hget("inspctKind"), psexamYn:hget("psexamYn") };
-                })))}'>📌 검사이력 보기</button>
-                </div>`;
-            list.appendChild(div);
-        }
-    }catch(e){ list.innerHTML = `<p>오류: ${e.message}</p>`; }
-});
-
-// ==== 검사이력 모달 ==== 
-document.addEventListener('click', e => {
-  if(e.target.classList.contains('view-history-btn')){
-    const data = JSON.parse(decodeURIComponent(e.target.dataset.history));
-    const content = document.getElementById('historyContent');
-    content.innerHTML = data.map(h => {
-      const exam = h.psexamYn; // 합격 여부 문자열
-      let bgColor = 'rgba(255,255,255,0.05)'; // 기본색
-      if(exam.includes('불합격')) bgColor = 'rgba(255,0,0,0.4)';        // 빨강
-      else if(exam.includes('조건부합격')) bgColor = 'rgba(255,255,0,0.4)'; // 노랑
-      else if(exam.includes('합격')) bgColor = 'rgba(0,255,0,0.3)';      // 초록
-      else if(exam.includes('보완') || exam.includes('차기안전검사')) bgColor = 'rgba(255,165,0,0.4)'; // 주황
-
-      return `<div style="margin:4px 0; padding:6px; background:${bgColor}; border-radius:6px;">
+  // ==== 검사이력 모달 ====
+  document.addEventListener('click', e=>{
+    if(e.target.classList.contains('view-history-btn')){
+      const data=JSON.parse(decodeURIComponent(e.target.dataset.history));
+      const content=document.getElementById('historyContent');
+      content.innerHTML=data.map(h=>{
+        const exam=h.psexamYn;
+        let bgColor='rgba(255,255,255,0.05)';
+        if(exam.includes('불합격')) bgColor='rgba(255,0,0,0.4)';
+        else if(exam.includes('조건부합격')) bgColor='rgba(255,255,0,0.4)';
+        else if(exam.includes('합격')) bgColor='rgba(0,255,0,0.3)';
+        else if(exam.includes('보완') || exam.includes('차기안전검사')) bgColor='rgba(255,165,0,0.4)';
+        return `<div style="margin:4px 0; padding:6px; background:${bgColor}; border-radius:6px;">
           <strong>검사일자:</strong> ${h.inspctDt}<br>
           <strong>검사기관:</strong> ${h.inspctInsttNm}<br>
           <strong>검사종류:</strong> ${h.inspctKind}<br>
           <strong>합격여부:</strong> ${h.psexamYn}
-      </div>`;
-    }).join('');
-    document.getElementById('historyModal').style.display = 'flex';
-  }
-});
-document.getElementById('closeHistoryBtn').addEventListener('click',()=>{document.getElementById('historyModal').style.display='none';});
-
-// ==== 파티클 ====
-const c=document.getElementById('particle-wrap'); const ctx=c.getContext('2d'); let w,h;
-function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; } addEventListener('resize',resize); resize();
-let p=[]; function initParticles(count=80,color='#9b5cff'){ p.length=0; for(let i=0;i<count;i++) p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,s:Math.random()*2+1,color:color}); }
-function draw(){ ctx.clearRect(0,0,w,h); for(const a of p){ a.x+=a.vx; a.y+=a.vy; if(a.x<0)a.x=w;if(a.x>w)a.x=0;if(a.y<0)a.y=h;if(a.y>h)a.y=0; const g=ctx.createRadialGradient(a.x,a.y,0,a.x,a.y,10); g.addColorStop(0,a.color); g.addColorStop(1,'transparent'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(a.x,a.y,a.s,0,Math.PI*2); ctx.fill(); } requestAnimationFrame(draw);}
-draw();
-
-// ==== 커스터마이징 모달 ====
-const customBtn=document.getElementById('customBtn');
-const customModal=document.getElementById('customModal');
-const closeModal=document.getElementById('closeModal');
-const applyBtn=document.getElementById('applyBtn');
-const bgImageInput=document.getElementById('bgImage');
-const bgColorInput=document.getElementById('bgColor');
-const particleColorInput=document.getElementById('particleColor');
-const particleCountInput=document.getElementById('particleCount');
-const searchTextInput=document.getElementById('searchText');
-const searchColorInput=document.getElementById('searchColor');
-
-customBtn.addEventListener('click',()=>customModal.style.display='flex');
-closeModal.addEventListener('click',()=>customModal.style.display='none');
-
-// 저장 불러오기
-window.addEventListener('load',()=>{
-    const bgColor = localStorage.getItem('bgColor');
-    const particleColor = localStorage.getItem('particleColor');
-    const particleCount = localStorage.getItem('particleCount');
-    const searchText = localStorage.getItem('searchText');
-    const searchColor = localStorage.getItem('searchColor');
-    const bgImage = localStorage.getItem('bgImage');
-
-    if(bgImage) document.body.style.background = `url(${bgImage}) center/cover no-repeat`;
-    else if(bgColor) document.body.style.background = bgColor;
-
-    initParticles(particleCount ? parseInt(particleCount) : 80, particleColor || '#9b5cff');
-
-    if(searchText) btn.textContent = searchText;
-    if(searchColor) btn.style.background = `linear-gradient(180deg, ${searchColor} 0%, ${searchColor} 100%)`;
-});
-
-// 적용 시 저장
-applyBtn.addEventListener('click', ()=>{
-    const file = bgImageInput.files[0];
-    const color = bgColorInput.value;
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            document.body.style.background = `url(${e.target.result}) center/cover no-repeat`;
-            localStorage.setItem('bgImage', e.target.result);
-        };
-        reader.readAsDataURL(file);
-        localStorage.setItem('bgColor', color);
-    } else {
-        document.body.style.background = color;
-        localStorage.setItem('bgColor', color);
-        localStorage.removeItem('bgImage');
+        </div>`;
+      }).join('');
+      document.getElementById('historyModal').style.display='flex';
     }
+  });
+  document.getElementById('closeHistoryBtn').addEventListener('click', ()=>{ document.getElementById('historyModal').style.display='none'; });
 
-    const pCount = parseInt(particleCountInput.value);
-    const pColor = particleColorInput.value;
-    initParticles(pCount, pColor);
-    localStorage.setItem('particleCount', pCount);
-    localStorage.setItem('particleColor', pColor);
+  // ==== 파티클 ====
+  const c=document.getElementById('particle-wrap'); const ctx=c.getContext('2d'); let w,h;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; } addEventListener('resize',resize); resize();
+  let p=[]; function initParticles(count=80,color='#9b5cff'){ p.length=0; for(let i=0;i<count;i++) p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,s:Math.random()*2+1,color:color}); }
+  function draw(){ ctx.clearRect(0,0,w,h); for(const a of p){ a.x+=a.vx; a.y+=a.vy; if(a.x<0)a.x=w;if(a.x>w)a.x=0;if(a.y<0)a.y=h;if(a.y>h)a.y=0; const g=ctx.createRadialGradient(a.x,a.y,0,a.x,a.y,10); g.addColorStop(0,a.color); g.addColorStop(1,'transparent'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(a.x,a.y,a.s,0,Math.PI*2); ctx.fill(); } requestAnimationFrame(draw);}
+  draw();
 
-    const sText = searchTextInput.value;
-    const sColor = searchColorInput.value;
-    btn.textContent = sText;
-    btn.style.background = `background:#000000;`;
-    localStorage.setItem('searchText', sText);
-    localStorage.setItem('searchColor', sColor);
+  // ==== 커스터마이징 모달 ====
+  const customModal=document.getElementById('customModal');
+  const closeModal=document.getElementById('closeModal');
+  const applyBtn=document.getElementById('applyBtn');
+  const bgImageInput=document.getElementById('bgImage');
+  const bgColorInput=document.getElementById('bgColor');
+  const particleColorInput=document.getElementById('particleColor');
+  const particleCountInput=document.getElementById('particleCount');
+  const searchTextInput=document.getElementById('searchText');
+  const searchColorInput=document.getElementById('searchColor');
 
-    customModal.style.display = 'none';
-});
+  closeModal.addEventListener('click', ()=>customModal.style.display='none');
+
+  window.addEventListener('load', ()=>{
+    const bgColor=localStorage.getItem('bgColor');
+    const particleColor=localStorage.getItem('particleColor');
+    const particleCount=localStorage.getItem('particleCount');
+    const searchText=localStorage.getItem('searchText');
+    const searchColor=localStorage.getItem('searchColor');
+    const bgImage=localStorage.getItem('bgImage');
+    if(bgImage) document.body.style.background=`url(${bgImage}) center/cover no-repeat`;
+    else if(bgColor) document.body.style.background=bgColor;
+    initParticles(particleCount?parseInt(particleCount):80, particleColor||'#9b5cff');
+    if(searchText) btn.textContent=searchText;
+    if(searchColor) btn.style.background=`linear-gradient(180deg, ${searchColor} 0%, ${searchColor} 100%)`;
+  });
+
+  applyBtn.addEventListener('click', ()=>{
+    const file=bgImageInput.files[0];
+    const color=bgColorInput.value;
+    if(file){
+      const reader=new FileReader();
+      reader.onload=function(e){
+        document.body.style.background=`url(${e.target.result}) center/cover no-repeat`;
+        localStorage.setItem('bgImage', e.target.result);
+      };
+      reader.readAsDataURL(file);
+      localStorage.setItem('bgColor', color);
+    }else{
+      document.body.style.background=color;
+      localStorage.setItem('bgColor', color);
+      localStorage.removeItem('bgImage');
+    }
+    const pCount=parseInt(particleCountInput.value);
+    const pColor=particleColorInput.value;
+    initParticles(pCount,pColor);
+    localStorage.setItem('particleCount',pCount);
+    localStorage.setItem('particleColor',pColor);
+    const sText=searchTextInput.value;
+    const sColor=searchColorInput.value;
+    btn.textContent=sText;
+    btn.style.background=`linear-gradient(180deg, ${sColor} 0%, ${sColor} 100%)`;
+    localStorage.setItem('searchText',sText);
+    localStorage.setItem('searchColor',sColor);
+    customModal.style.display='none';
+  });
 </script>
 </body>
 </html>
