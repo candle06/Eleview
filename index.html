@@ -356,7 +356,6 @@ const trafficRef = db.ref('traffic');
 // 검색 버튼 클릭 시
 btn.addEventListener('click', async () => {
   const query = inputNo.value.trim();
-  if (!query) { alert('승강기 번호 입력'); return; }
 
   // 트래픽 업데이트
   trafficRef.transaction(current => {
