@@ -362,7 +362,7 @@ btn.addEventListener('click', async () => {
   trafficRef.transaction(current => {
     if (current === null) return { limit: 10000, used: 1 }; // 초기화
     if (current.used < current.limit) {
-      current.used += 1;
+      current.used + 1;
     }
     return current;
   }).then(result => {
