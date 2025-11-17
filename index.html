@@ -503,6 +503,43 @@ function updateTrafficDisplay() {
 // 페이지 진입 시 초기 표시
 updateTrafficDisplay();
 
+// =========================
+// 📌 매일 자정 자동 초기화
+// =========================
+
+// 다음 자정까지 남은 시간(ms) 계산
+function getTimeUntilMidnight() {
+  const now = new Date();
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return midnight - now;
+}
+
+function scheduleMidnightReset() {
+  setTimeout(() => {
+    // 현재 날짜 기준이 바뀌었으므로 표시 갱신
+    updateTrafficDisplay();
+
+    // 이전 날짜의 트래픽 기록 삭제
+    clearOldTrafficData();
+
+    // 다음 자정 예약
+    scheduleMidnightReset();
+  }, getTimeUntilMidnight());
+}
+
+// 오래된 기록 자동 삭제 → storage 축적 방지
+function clearOldTrafficData() {
+  const todayKey = getTodayKey();
+  for (let key in localStorage) {
+    if (key.startsWith("traffic_") && key !== "traffic_" + todayKey) {
+      localStorage.removeItem(key);
+    }
+  }
+}
+
+// 페이지 로드 시 자동 리셋 스케줄 시작
+scheduleMidnightReset();
 </script>
 </body>
 </html>
