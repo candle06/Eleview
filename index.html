@@ -172,6 +172,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   @2025 Eleview V1.4 - 제작자 : 마녀
 </div>
 
+<div id="trafficInfo" style="text-align:center; font-size:12px; color:#bbb; margin-top:6px;">
+  남은 트래픽: 계산중...
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -235,6 +239,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   }
 
   btn.addEventListener('click', async ()=>{
+    increaseTodayCount();
     const query=inputNo.value.trim();
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
@@ -459,6 +464,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
 });
+
+// =========================
+// 📌 API 트래픽 카운터
+// =========================
+
+// 하루 제한(공공데이터포털 일반은 기본 1,000회)
+const DAILY_LIMIT = 1000;
+
+// 오늘 날짜 키
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+// 오늘 사용량 가져오기
+function getTodayCount() {
+  const key = getTodayKey();
+  return parseInt(localStorage.getItem("traffic_" + key) || "0");
+}
+
+// 오늘 사용량 증가
+function increaseTodayCount() {
+  const key = getTodayKey();
+  const nowCount = getTodayCount() + 1;
+  localStorage.setItem("traffic_" + key, nowCount);
+  updateTrafficDisplay();
+}
+
+// 화면에 표시 업데이트
+function updateTrafficDisplay() {
+  const used = getTodayCount();
+  const remain = DAILY_LIMIT - used;
+  document.getElementById("trafficInfo").textContent =
+    `남은 트래픽: ${remain}회 (사용: ${used}회 / 제한: ${DAILY_LIMIT}회)`;
+}
+
+// 페이지 진입 시 초기 표시
+updateTrafficDisplay();
 
 </script>
 </body>
