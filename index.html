@@ -385,9 +385,7 @@ viewTrafficBtn.addEventListener('click', () => {
     const remaining = data.limit - data.used;
 
     trafficContent.innerHTML = `
-      <p>총 한도: ${data.limit}회</p>
       <p>사용량: ${data.used}회</p>
-      <p>남은 트래픽: ${remaining}회</p>
     `;
 
     trafficModal.style.display = 'flex';
