@@ -117,6 +117,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <button id="viewFavsBtn" style="background:none; border:2px solid #ffd700; color:#ffd700; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
     ⭐ 즐겨찾기 보기
   </button>
+  <button id="viewTrafficBtn" 
+        style="background:none; border:2px solid #ffd700; color:#ffd700; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
+  📊 트래픽 조회
+</button>
   </div>
 </header>
 
@@ -125,6 +129,14 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <button id="closeFavModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>즐겨찾기 목록</h3>
     <div id="favList"></div>
+  </div>
+</div>
+
+<div id="trafficModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
+  <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px;">
+    <button id="closeTrafficModal" class="btn" style="align-self:flex-end;">닫기</button>
+    <h3>실시간 트래픽</h3>
+    <div id="trafficContent" style="font-size:14px; line-height:1.6;"></div>
   </div>
 </div>
 
@@ -234,9 +246,20 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     return icons.length?icons:['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
   }
 
+  // 트래픽 데이터 참조
+const trafficRef = db.ref('traffic');
+
   btn.addEventListener('click', async ()=>{
     const query=inputNo.value.trim();
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
+     // 검색 전에 트래픽 증가
+  trafficRef.transaction(current => {
+    if(current){
+      if(!current.used) current.used = 0;
+      current.used++;
+    }
+    return current;
+  });
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
@@ -328,6 +351,57 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     }
   });
   document.getElementById('closeHistoryBtn').addEventListener('click', ()=>{ document.getElementById('historyModal').style.display='none'; });
+
+
+// 검색 버튼 클릭 시
+btn.addEventListener('click', async () => {
+  const query = inputNo.value.trim();
+  if (!query) { alert('승강기 번호 입력'); return; }
+
+  // 트래픽 업데이트
+  trafficRef.transaction(current => {
+    if (current === null) return { limit: 10000, used: 1 }; // 초기화
+    if (current.used < current.limit) {
+      current.used += 1;
+    }
+    return current;
+  }).then(result => {
+    const data = result.snapshot.val();
+    console.log('트래픽 상태:', data);
+  });
+
+  // 기존 검색 코드 실행
+});
+
+// 햄버거 메뉴 → 트래픽 조회 버튼
+const viewTrafficBtn = document.getElementById('viewTrafficBtn');
+const trafficModal = document.getElementById('trafficModal');
+const trafficContent = document.getElementById('trafficContent');
+const closeTrafficModal = document.getElementById('closeTrafficModal');
+
+viewTrafficBtn.addEventListener('click', () => {
+  trafficRef.once('value').then(snapshot => {
+    const data = snapshot.val() || { limit: 10000, used: 0 };
+    const remaining = data.limit - data.used;
+
+    trafficContent.innerHTML = `
+      <p>총 한도: ${data.limit}회</p>
+      <p>사용량: ${data.used}회</p>
+      <p>남은 트래픽: ${remaining}회</p>
+    `;
+
+    trafficModal.style.display = 'flex';
+  });
+});
+
+closeTrafficModal.addEventListener('click', () => {
+  trafficModal.style.display = 'none';
+});
+
+// 모달 닫기
+document.getElementById('closeTrafficModal').addEventListener('click', () => {
+  document.getElementById('trafficModal').style.display = 'none';
+});
 
   // ==== 파티클 ====
   const c=document.getElementById('particle-wrap'); const ctx=c.getContext('2d'); let w,h;
@@ -459,6 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
 });
+
 
 </script>
 </body>
