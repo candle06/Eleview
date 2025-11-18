@@ -90,6 +90,65 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 4px 12px rgba(155,92,255,0.5);
 }
+
+#favModal > div {
+  background: linear-gradient(135deg, #332200, #554400);
+  box-shadow: 0 10px 30px rgba(255,215,0,0.6), 0 0 12px rgba(255,215,0,0.25) inset;
+}
+.fav-item {
+  padding: 12px 16px;
+  background: rgba(255,215,0,0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255,215,0,0.25);
+  color: rgba(255,215,0,0.6);
+  font-weight: 500;
+}
+.fav-item:hover {
+  transform: scale(1.05);
+  background: rgba(255,215,0,0.25);
+  box-shadow: 0 6px 18px rgba(255,215,0,0.5);
+}
+#favModal .modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffd700; /* 골드 색상 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+}
+#favModal .modal-close:hover {
+  color: rgba(255, 215, 0, 1);
+  text-shadow: 0 0 12px rgba(255, 215, 0, 1), 0 0 6px rgba(255, 255, 150, 0.6);
+  transform: scale(1.2);
+}
+#trafficModal > div {
+  background: linear-gradient(145deg, #1a002e, #3a0060);
+  box-shadow: 0 10px 24px rgba(0,255,255,0.5), 0 0 10px rgba(0,255,255,0.25) inset;
+  color: #fff;
+}
+#trafficContent {
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+#donateModal > div {
+  background: linear-gradient(135deg, #2e0000, #44001a);
+  box-shadow: 0 10px 28px rgba(255,107,107,0.5), 0 0 12px rgba(255,107,107,0.25) inset;
+}
+#donateModal p {
+  margin: 6px 0;
+  line-height: 1.4;
+  color: #ffdddd;
+}
+#donateModal strong {
+  color: #ffd700;
+  text-shadow: 0 0 6px #ffd700aa, 0 0 12px #ffb70066;
+}
 </style>
 </head>
 <body style="background:#000000;">
@@ -130,7 +189,18 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="favModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; max-height:70vh; overflow:auto; display:flex; flex-direction:column; gap:10px;">
-    <button id="closeFavModal" class="btn" style="align-self:flex-end;">닫기</button>
+    <button id="closeFavModal" <button class="btn" style="
+    align-self:flex-end;
+    background: #ffd700;    /* 버튼 배경 색상 */
+    color: #000;            /* 글자 색상 */
+    border: none;           /* 테두리 제거 */
+    padding: 6px 12px;      /* 버튼 여백 */
+    border-radius: 8px;     /* 둥근 모서리 */
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255,215,0,0.5);
+    transition: all 0.2s;
+">닫기</button>
     <h3>즐겨찾기 목록</h3>
     <div id="favList"></div>
   </div>
@@ -138,7 +208,18 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="trafficModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px;">
-    <button id="closeTrafficModal" class="btn" style="align-self:flex-end;">닫기</button>
+    <button id="closeTrafficModal" <button class="btn" style="
+    align-self:flex-end;
+    background: #3eb489;    /* 민트 배경 */
+    color: #fff;            /* 글자 색상 흰색 */
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(62,180,137,0.5);
+    transition: all 0.2s;
+">닫기</button>
     <h3>실시간 트래픽</h3>
     <div id="trafficContent" style="font-size:14px; line-height:1.6;"></div>
   </div>
@@ -186,7 +267,18 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="donateModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px; text-align:center; color:#fff;">
-    <button id="closeDonateModal" class="btn" style="align-self:flex-end;">닫기</button>
+    <button id="closeDonateModal" <button class="btn" style="
+    align-self:flex-end;
+    background: #ff69b4;  /* 핫핑크 */
+    color: #fff;           /* 글자 색상 흰색 */
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255,105,180,0.5);
+    transition: all 0.2s;
+">닫기</button>
     <h3>후원 안내</h3>
     <p>여러분의 후원은 서비스 유지에 큰 힘이 됩니다! 💖</p>
     <p><strong>은행:</strong>케이뱅크 888004288696</p>
@@ -478,6 +570,7 @@ document.getElementById('closeTrafficModal').addEventListener('click', () => {
     customModal.style.display='none';
   });
 
+// 즐겨찾기 로직 - 카드 정보 전체 저장
 function getFavorites() {
   return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
@@ -486,15 +579,23 @@ function saveFavorites(favs) {
   localStorage.setItem('favorites', JSON.stringify(favs));
 }
 
+// 즐겨찾기 버튼 클릭
 document.addEventListener('click', e => {
   if (e.target.classList.contains('fav-btn')) {
+    const card = e.target.closest('.card');
     const elevatorNo = e.target.dataset.elevator;
     let favs = getFavorites();
-    if (favs.includes(elevatorNo)) {
-      favs = favs.filter(f => f !== elevatorNo);
+
+    if (favs.find(f => f.elevatorNo === elevatorNo)) {
+      // 이미 즐겨찾기 되어있으면 삭제
+      favs = favs.filter(f => f.elevatorNo !== elevatorNo);
       e.target.textContent = '☆';
     } else {
-      favs.push(elevatorNo);
+      // 즐겨찾기 추가 (카드 HTML 정보 저장)
+      favs.push({
+        elevatorNo: elevatorNo,
+        html: card.outerHTML
+      });
       e.target.textContent = '★';
     }
     saveFavorites(favs);
@@ -506,7 +607,7 @@ function updateCardFavorites() {
   const favs = getFavorites();
   document.querySelectorAll('.card').forEach(card => {
     const btn = card.querySelector('.fav-btn');
-    if (btn && favs.includes(btn.dataset.elevator)) btn.textContent = '★';
+    if (btn && favs.find(f => f.elevatorNo === btn.dataset.elevator)) btn.textContent = '★';
   });
 }
 
@@ -515,34 +616,44 @@ btn.addEventListener('click', async ()=>{
   updateCardFavorites();
 });
 
-const favModal = document.getElementById('favModal');
-const favList = document.getElementById('favList');
-
-document.addEventListener('DOMContentLoaded', () => {
-  const favModal = document.getElementById('favModal');
-  const favList = document.getElementById('favList');
-
-  document.getElementById('viewFavsBtn').addEventListener('click', ()=>{
+// 즐겨찾기 모달 렌더링
+function renderFavorites() {
   const favs = getFavorites();
-  if(favs.length===0) favList.innerHTML = '<p>즐겨찾기 없음</p>';
-  else {
-    favList.innerHTML = favs.map(f => 
-      `<div class="fav-item" style="padding:6px; background:rgba(255,255,255,0.05); border-radius:6px; cursor:pointer;">${f}</div>`
-    ).join('');
-    
-    // ✅ 클릭 시 검색
-    favList.querySelectorAll('.fav-item').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        inputNo.value = el.textContent;   // 승강기 번호 입력
-        favModal.style.display = 'none';  // 모달 닫기
-        btn.click();                       // 검색 버튼 클릭
-      });
-    });
+  const favList = document.getElementById('favList');
+  favList.innerHTML = ''; // 초기화
+
+  if(favs.length === 0) {
+    favList.innerHTML = '<p>즐겨찾기 없음</p>';
+    return;
   }
-  favModal.style.display='flex';
+
+  favs.forEach(fav => {
+    // 카드 HTML 그대로 삽입
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = fav.html;
+
+    // 즐겨찾기 버튼 제거
+    const favBtn = wrapper.querySelector('.fav-btn');
+    if(favBtn) favBtn.remove();
+
+    // 모달용 버튼 위치 조정
+    const historyBtn = wrapper.querySelector('.view-history-btn');
+    if(historyBtn) historyBtn.style.position = 'static';
+
+    wrapper.style.marginBottom = '10px';
+    favList.appendChild(wrapper);
+  });
+}
+
+// 즐겨찾기 모달 열기
+document.getElementById('viewFavsBtn').addEventListener('click', ()=>{
+  renderFavorites();
+  favModal.style.display = 'flex';
 });
 
-  document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
+// 즐겨찾기 모달 닫기
+document.getElementById('closeFavModal').addEventListener('click', ()=>{
+  favModal.style.display = 'none';
 });
 
 const donateBtn = document.getElementById('donateBtn');
