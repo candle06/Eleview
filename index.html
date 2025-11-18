@@ -463,6 +463,29 @@ const trafficRef = db.ref('traffic');
 btn.addEventListener('click', async () => {
   const query = inputNo.value.trim();
 
+const trafficRef = database.ref("traffic");
+
+// 오늘 날짜(YYYY-MM-DD)
+const today = new Date().toISOString().slice(0, 10);
+
+trafficRef.transaction(current => {
+    if (!current) {
+        // 처음 저장되는 경우
+        return {
+            used: 0,
+            date: today
+        };
+    }
+
+    // 날짜가 바뀌었으면 초기화
+    if (current.date !== today) {
+        current.used = 0;
+        current.date = today;
+    }
+
+    return current;
+});
+
   // 트래픽 업데이트
   trafficRef.transaction(current => {
     if (current === null) return { limit: 10000, used: 1 }; // 초기화
