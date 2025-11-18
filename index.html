@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.5</title>
+<title>Eleview V1.4</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; } 
@@ -90,7 +90,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 4px 12px rgba(155,92,255,0.5);
 }
-
 #favModal > div {
   background: linear-gradient(135deg, #332200, #554400);
   box-shadow: 0 10px 30px rgba(255,215,0,0.6), 0 0 12px rgba(255,215,0,0.25) inset;
@@ -102,29 +101,13 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(255,215,0,0.25);
-  color: rgba(255,215,0,0.6);
+  color: #fff8e1;
   font-weight: 500;
 }
 .fav-item:hover {
   transform: scale(1.05);
   background: rgba(255,215,0,0.25);
   box-shadow: 0 6px 18px rgba(255,215,0,0.5);
-}
-#favModal .modal-close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #ffd700; /* 골드 색상 */
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
-}
-#favModal .modal-close:hover {
-  color: rgba(255, 215, 0, 1);
-  text-shadow: 0 0 12px rgba(255, 215, 0, 1), 0 0 6px rgba(255, 255, 150, 0.6);
-  transform: scale(1.2);
 }
 #trafficModal > div {
   background: linear-gradient(145deg, #1a002e, #3a0060);
@@ -157,7 +140,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-  <div class="logo">Eleview V1.5</div>
+  <div class="logo">Eleview V1.4</div>
 
   <!-- 햄버거 버튼 -->
   <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -189,18 +172,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="favModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; max-height:70vh; overflow:auto; display:flex; flex-direction:column; gap:10px;">
-    <button id="closeFavModal" <button class="btn" style="
-    align-self:flex-end;
-    background: #ffd700;    /* 버튼 배경 색상 */
-    color: #000;            /* 글자 색상 */
-    border: none;           /* 테두리 제거 */
-    padding: 6px 12px;      /* 버튼 여백 */
-    border-radius: 8px;     /* 둥근 모서리 */
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(255,215,0,0.5);
-    transition: all 0.2s;
-">닫기</button>
+    <button id="closeFavModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>즐겨찾기 목록</h3>
     <div id="favList"></div>
   </div>
@@ -208,18 +180,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="trafficModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px;">
-    <button id="closeTrafficModal" <button class="btn" style="
-    align-self:flex-end;
-    background: #3eb489;    /* 민트 배경 */
-    color: #fff;            /* 글자 색상 흰색 */
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(62,180,137,0.5);
-    transition: all 0.2s;
-">닫기</button>
+    <button id="closeTrafficModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>실시간 트래픽</h3>
     <div id="trafficContent" style="font-size:14px; line-height:1.6;"></div>
   </div>
@@ -267,18 +228,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="donateModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px; text-align:center; color:#fff;">
-    <button id="closeDonateModal" <button class="btn" style="
-    align-self:flex-end;
-    background: #ff69b4;  /* 핫핑크 */
-    color: #fff;           /* 글자 색상 흰색 */
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(255,105,180,0.5);
-    transition: all 0.2s;
-">닫기</button>
+    <button id="closeDonateModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>후원 안내</h3>
     <p>여러분의 후원은 서비스 유지에 큰 힘이 됩니다! 💖</p>
     <p><strong>은행:</strong>케이뱅크 888004288696</p>
@@ -287,7 +237,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.5 - 제작자 : 마녀
+  @2025 Eleview V1.4 - 제작자 : 마녀
 </div>
 
 <!-- Firebase SDK -->
@@ -463,29 +413,6 @@ const trafficRef = db.ref('traffic');
 btn.addEventListener('click', async () => {
   const query = inputNo.value.trim();
 
-const trafficRef = database.ref("traffic");
-
-// 오늘 날짜(YYYY-MM-DD)
-const today = new Date().toISOString().slice(0, 10);
-
-trafficRef.transaction(current => {
-    if (!current) {
-        // 처음 저장되는 경우
-        return {
-            used: 0,
-            date: today
-        };
-    }
-
-    // 날짜가 바뀌었으면 초기화
-    if (current.date !== today) {
-        current.used = 0;
-        current.date = today;
-    }
-
-    return current;
-});
-
   // 트래픽 업데이트
   trafficRef.transaction(current => {
     if (current === null) return { limit: 10000, used: 1 }; // 초기화
@@ -593,7 +520,6 @@ document.getElementById('closeTrafficModal').addEventListener('click', () => {
     customModal.style.display='none';
   });
 
-// 즐겨찾기 로직 - 카드 정보 전체 저장
 function getFavorites() {
   return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
@@ -607,18 +533,16 @@ document.addEventListener('click', e => {
   if (e.target.classList.contains('fav-btn')) {
     const card = e.target.closest('.card');
     const elevatorNo = e.target.dataset.elevator;
+    const buldNm = card.querySelector('h3')?.textContent || '';
+    const elvtrModel = card.querySelector('.info strong')?.textContent || ''; // 모델명
     let favs = getFavorites();
+    const existingIndex = favs.findIndex(f => f.elevatorNo === elevatorNo);
 
-    if (favs.find(f => f.elevatorNo === elevatorNo)) {
-      // 이미 즐겨찾기 되어있으면 삭제
-      favs = favs.filter(f => f.elevatorNo !== elevatorNo);
+    if (existingIndex > -1) {
+      favs.splice(existingIndex, 1);
       e.target.textContent = '☆';
     } else {
-      // 즐겨찾기 추가 (카드 HTML 정보 저장)
-      favs.push({
-        elevatorNo: elevatorNo,
-        html: card.outerHTML
-      });
+      favs.push({ elevatorNo, buldNm, elvtrModel });
       e.target.textContent = '★';
     }
     saveFavorites(favs);
@@ -630,7 +554,7 @@ function updateCardFavorites() {
   const favs = getFavorites();
   document.querySelectorAll('.card').forEach(card => {
     const btn = card.querySelector('.fav-btn');
-    if (btn && favs.find(f => f.elevatorNo === btn.dataset.elevator)) btn.textContent = '★';
+    if (btn && favs.includes(btn.dataset.elevator)) btn.textContent = '★';
   });
 }
 
@@ -639,44 +563,37 @@ btn.addEventListener('click', async ()=>{
   updateCardFavorites();
 });
 
-// 즐겨찾기 모달 렌더링
-function renderFavorites() {
-  const favs = getFavorites();
+const favModal = document.getElementById('favModal');
+const favList = document.getElementById('favList');
+
+document.addEventListener('DOMContentLoaded', () => {
+  const favModal = document.getElementById('favModal');
   const favList = document.getElementById('favList');
-  favList.innerHTML = ''; // 초기화
 
-  if(favs.length === 0) {
-    favList.innerHTML = '<p>즐겨찾기 없음</p>';
-    return;
+  document.getElementById('viewFavsBtn').addEventListener('click', ()=>{
+  const favs = getFavorites();
+  if(favs.length===0) favList.innerHTML = '<p>즐겨찾기 없음</p>';
+  else {
+    favList.innerHTML = favs.map(f => 
+      `<div class="fav-item" style="padding:6px; background:rgba(255,255,255,0.05); border-radius:6px; cursor:pointer;">
+        <strong>${f.buldNm}</strong> (${f.elevatorNo})
+      </div>`
+    ).join('');
+
+    // 클릭 시 검색
+    favList.querySelectorAll('.fav-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const text = el.textContent.match(/\((.*)\)/)[1]; // 괄호 안 elevatorNo 추출
+        inputNo.value = text;
+        favModal.style.display = 'none';
+        btn.click();
+      });
+    });
   }
-
-  favs.forEach(fav => {
-    // 카드 HTML 그대로 삽입
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = fav.html;
-
-    // 즐겨찾기 버튼 제거
-    const favBtn = wrapper.querySelector('.fav-btn');
-    if(favBtn) favBtn.remove();
-
-    // 모달용 버튼 위치 조정
-    const historyBtn = wrapper.querySelector('.view-history-btn');
-    if(historyBtn) historyBtn.style.position = 'static';
-
-    wrapper.style.marginBottom = '10px';
-    favList.appendChild(wrapper);
-  });
-}
-
-// 즐겨찾기 모달 열기
-document.getElementById('viewFavsBtn').addEventListener('click', ()=>{
-  renderFavorites();
-  favModal.style.display = 'flex';
+  favModal.style.display='flex';
 });
 
-// 즐겨찾기 모달 닫기
-document.getElementById('closeFavModal').addEventListener('click', ()=>{
-  favModal.style.display = 'none';
+  document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
 });
 
 const donateBtn = document.getElementById('donateBtn');
