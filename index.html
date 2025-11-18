@@ -333,7 +333,7 @@ const trafficRef = db.ref('traffic');
     }
     return current;
   });
-    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'5000' });
+    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
     list.innerHTML='';
@@ -359,6 +359,7 @@ const trafficRef = db.ref('traffic');
         const hisXml=await hisRes.text();
         const hisDoc=new DOMParser().parseFromString(hisXml,"text/xml");
         const historyItems=Array.from(hisDoc.getElementsByTagName("item"));
+        console.log('hisXml:', hisXml);
         const shuttleFloor=get("shuttleFloorCnt")||v("shuttleFloorCnt")||'N/A';
         const speed=get("ratedSpeed")||v("ratedSpeed");
         const speedMMin=speed?(parseFloat(speed)*60).toFixed(1):'N/A';
@@ -388,8 +389,8 @@ const trafficRef = db.ref('traffic');
           <strong>승강기상태:</strong> ${get("elvtrSttsNm")}<br>
           <button class="btn fav-btn" data-elevator='${elevatorNo}' style="position:absolute; bottom:12px; right:12px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">☆</button>
           <button class="btn view-history-btn" data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
-            const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent||'';
-            return { inspctDt:hget("inspctDt"), inspctInsttNm:hget("inspctInsttNm"), inspctKind:hget("inspctKind"), psexamYn:hget("psexamYn") };
+        const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent||'';
+        return { inspctDt:hget("inspctDt"), inspctInsttNm:hget("inspctInsttNm"), inspctKind:hget("inspctKind"), psexamYn:hget("psexamYn") };
           })))}'>📌 검사이력 보기</button>
           </div>`;
         list.appendChild(div);
@@ -404,9 +405,9 @@ const trafficRef = db.ref('traffic');
   // ==== 검사이력 모달 ====
   document.addEventListener('click', e=>{
     if(e.target.classList.contains('view-history-btn')){
-      const data=JSON.parse(decodeURIComponent(e.target.dataset.history));
-      const content=document.getElementById('historyContent');
-      content.innerHTML=data.map(h=>{
+        const data=JSON.parse(decodeURIComponent(e.target.dataset.history));
+        const content=document.getElementById('historyContent');
+        content.innerHTML = data.map(h=>{ 
         const exam=h.psexamYn;
         let bgColor='rgba(255,255,255,0.05)';
         if(exam.includes('불합격')) bgColor='rgba(255,0,0,0.4)';
@@ -420,9 +421,9 @@ const trafficRef = db.ref('traffic');
           <strong>합격여부:</strong> ${h.psexamYn}
         </div>`;
       }).join('');
-      document.getElementById('historyModal').style.display='flex';
+        document.getElementById('historyModal').style.display='flex';
     }
-  });
+})
   document.getElementById('closeHistoryBtn').addEventListener('click', ()=>{ document.getElementById('historyModal').style.display='none'; });
 
 // 검색 버튼 클릭 시
