@@ -121,6 +121,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
         style="background:none; border:2px solid #00fff2; color:#00ffff; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
   📊 트래픽 조회
 </button>
+<button id="donateBtn" 
+    style="background:none; border:2px solid #ff6b6b; color:#ff6b6b; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
+    💖 후원
+</button>
   </div>
 </header>
 
@@ -177,6 +181,16 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <button id="closeHistoryBtn" class="btn" style="align-self:flex-end; margin-bottom:10px;">닫기</button>
     <h3>검사이력</h3>
     <div id="historyContent"></div>
+  </div>
+</div>
+
+<div id="donateModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
+  <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px; text-align:center; color:#fff;">
+    <button id="closeDonateModal" class="btn" style="align-self:flex-end;">닫기</button>
+    <h3>후원 안내</h3>
+    <p>여러분의 후원은 서비스 유지에 큰 힘이 됩니다! 💖</p>
+    <p><strong>은행:</strong>케이뱅크 888004288696</p>
+    <p><strong>예금주:</strong> ㄱㅊㅎ</p>
   </div>
 </div>
 
@@ -531,7 +545,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
 });
 
+const donateBtn = document.getElementById('donateBtn');
+const donateModal = document.getElementById('donateModal');
+const closeDonateModal = document.getElementById('closeDonateModal');
 
+donateBtn.addEventListener('click', () => {
+  donateModal.style.display = 'flex';
+  menuPanel.style.display = 'none'; // 메뉴 닫기
+});
+
+closeDonateModal.addEventListener('click', () => {
+  donateModal.style.display = 'none';
+});
+
+// 모달 바깥 클릭 시 닫기
+window.addEventListener('click', (e) => {
+  if(e.target === donateModal) donateModal.style.display = 'none';
+});
 </script>
 </body>
 </html>
