@@ -613,6 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderFavorites();
       updateCardStars();
     }
+  })})
 
     // 즐겨찾기 모달 내 삭제 버튼
     if (e.target.classList.contains('remove-fav-btn')) {
@@ -626,15 +627,16 @@ document.addEventListener('DOMContentLoaded', () => {
       updateCardStars();
     }
 
-    // 즐겨찾기 모달 내 즐겨찾기 클릭 -> 검색
-    if (e.target.classList.contains('fav-name')) {
-      const parent = e.target.closest('.fav-item');
+    // 즐겨찾기 클릭 -> 검색
+  favList.querySelectorAll('.fav-name').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const parent = el.closest('.fav-item');
       const elevatorNo = parent.dataset.elevator;
-      if (elevatorNo) {
+      if(elevatorNo){
         inputNo.value = elevatorNo;
-        favModal.style.display = 'none';
+        favModal.style.display='none';
         searchBtn.click();
-      }
+      
     }
   });
 
@@ -656,28 +658,77 @@ function saveFavorites(favs) {
 // ================================
 // 즐겨찾기 렌더링
 // ================================
-function renderFavorites() {
-  const favList = document.getElementById('favList');
-  const favs = getFavorites().filter(f => f.elevatorNo || f.buldNm);
+function renderFavorites(){
+  const favs = getFavorites().filter(f=>f.elevatorNo||f.buldNm);
 
-  if (favs.length === 0) {
-    favList.innerHTML = '<p>즐겨찾기 없음</p>';
+  if(favs.length===0){
+    favList.innerHTML='<p>즐겨찾기 없음</p>';
     return;
   }
 
-  favList.innerHTML = favs.map(f => {
-    let text = f.buldNm || '';
-    if (f.buldNm && f.elevatorNo) text += ` (${f.elevatorNo})`;
-    else if (!f.buldNm && f.elevatorNo) text = f.elevatorNo;
+  favList.innerHTML = favs.map(f=>{
+    let text = f.buldNm||'';
+    if(f.buldNm && f.elevatorNo) text+=` (${f.elevatorNo})`;
+    else if(!f.buldNm && f.elevatorNo) text=f.elevatorNo;
 
-    return `
-      <div class="fav-item" data-elevator="${f.elevatorNo}" style="padding:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:rgba(255,215,0,0.1); border-radius:6px; margin-bottom:4px;">
-        <span class="fav-name"><strong>${text}</strong></span>
-        <button class="remove-fav-btn" style="background:red; border:none; color:#fff; border-radius:4px; padding:2px 6px;">삭제</button>
-      </div>
-    `;
+    return `<div class="fav-item" data-elevator="${f.elevatorNo}">
+      <span class="fav-name"><strong>${text}</strong></span>
+      <button class="remove-fav-btn">삭제</button>
+    </div>`;
   }).join('');
+
+  // 즐겨찾기 클릭 -> 검색
+  favList.querySelectorAll('.fav-name').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const parent = el.closest('.fav-item');
+      const elevatorNo = parent.dataset.elevator;
+      if(elevatorNo){
+        inputNo.value = elevatorNo;
+        favModal.style.display='none';
+        searchBtn.click();
+      }
+    });
+  });
+
+  // 삭제 버튼
+  favList.querySelectorAll('.remove-fav-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const parent = btn.closest('.fav-item');
+      const elevatorNo = parent.dataset.elevator;
+      let favs = getFavorites();
+      favs = favs.filter(f=>f.elevatorNo!==elevatorNo);
+      saveFavorites(favs);
+      renderFavorites();
+      updateCardStars();
+    });
+  });
 }
+
+// ================================
+// 카드 별표 상태 업데이트
+// ================================
+function updateCardStars(){
+  const favs = getFavorites();
+  document.querySelectorAll('.card .fav-btn').forEach(btn=>{
+    const elNo = btn.dataset.elevator;
+    btn.textContent = favs.find(f=>f.elevatorNo===elNo)?'★':'☆';
+  });
+}
+
+// ================================
+// 즐겨찾기 모달 열기/닫기
+// ================================
+viewFavsBtn.addEventListener('click', ()=>{
+  renderFavorites();
+  favModal.style.display='flex';
+});
+closeFavModal.addEventListener('click', ()=>{ favModal.style.display='none'; });
+
+// ================================
+// 초기 로드
+// ================================
+updateCardStars();
 
 // ================================
 // 카드 별표 상태 업데이트
