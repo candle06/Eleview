@@ -333,7 +333,7 @@ const trafficRef = db.ref('traffic');
     }
     return current;
   });
-    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'50' });
+    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'20' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
     list.innerHTML='';
