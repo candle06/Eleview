@@ -432,7 +432,7 @@ btn.addEventListener('click', async () => {
 
   // 트래픽 업데이트
   trafficRef.transaction(current => {
-    if (current === null) return { limit: 10000, used: 1 }; // 초기화
+    if (current === null) return { limit: 100000, used: 1 }; // 초기화
     if (current.used < current.limit) {
       current.used + 1;
     }
@@ -565,6 +565,36 @@ window.addEventListener('click', (e) => {
     localStorage.setItem('searchColor',sColor);
     customModal.style.display='none';
   });
+
+// ================================
+// 검색/조회 캐시
+// ================================
+function getCache(key) {
+  return JSON.parse(localStorage.getItem(key) || 'null');
+}
+
+function setCache(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+// ================================
+// 하루 단위 캐시 초기화
+// ================================
+function resetDailyCache() {
+  const lastReset = localStorage.getItem('lastResetDate');
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  if (lastReset !== today) {
+    // 검색/조회 관련 캐시만 삭제
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('search_') || key.startsWith('history_')) {
+        localStorage.removeItem(key);
+      }
+    });
+    localStorage.setItem('lastResetDate', today);
+    console.log('하루 캐시 초기화 완료!');
+  }
+}
 
 // ================================
 // 즐겨찾기 관련 함수
@@ -760,11 +790,18 @@ function updateCardStars() {
   });
 }
 
-
 // 모달 바깥 클릭 시 닫기
 window.addEventListener('click', (e) => {
   if(e.target === donateModal) donateModal.style.display = 'none';
 });
+
+
+// ================================
+// 초기화 및 렌더
+// ================================
+resetDailyCache();
+renderFavorites();
+updateCardStars();
 </script>
 </body>
 </html>
