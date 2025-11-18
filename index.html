@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.4</title>
+<title>Eleview V1.4.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; } 
@@ -109,6 +109,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   background: rgba(255,215,0,0.25);
   box-shadow: 0 6px 18px rgba(255,215,0,0.5);
 }
+
 #trafficModal > div {
   background: linear-gradient(145deg, #1a002e, #3a0060);
   box-shadow: 0 10px 24px rgba(0,255,255,0.5), 0 0 10px rgba(0,255,255,0.25) inset;
@@ -140,7 +141,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-  <div class="logo">Eleview V1.4</div>
+  <div class="logo">Eleview V1.4.5</div>
 
   <!-- 햄버거 버튼 -->
   <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -149,24 +150,36 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   <!-- 햄버거 메뉴 패널 -->
   <div id="menuPanel" style="display:none; position:absolute; top:60px; right:10px; 
       background:rgba(0,0,0,0.85); border-radius:12px; padding:10px; flex-direction:column; gap:8px; min-width:160px; z-index:5;">
-    <a href="https://open.kakao.com/o/sYLH7W1h" target="_blank"
-       style="color:#9b5cff; font-weight:600; text-decoration:none; display:block; padding:6px 0;">📩 문의</a>
-    <a href="https://naver.me/GcKVxHTB" target="_blank"
-       style="color:#00c73c; font-weight:600; text-decoration:none; display:block; padding:6px 0;">🏠 카페 바로가기</a>
-    <button id="customBtnMenu" style="background:none; border:2px solid #d67cff; color:#d67cff; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0;">
-      ⚙️ 설정
-    </button>
-    <button id="viewFavsBtn" style="background:none; border:2px solid #ffd700; color:#ffd700; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
-    ⭐ 즐겨찾기 보기
-  </button>
-  <button id="viewTrafficBtn" 
-        style="background:none; border:2px solid #00fff2; color:#00ffff; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
-  📊 트래픽 조회
+ <a href="https://open.kakao.com/o/sYLH7W1h" target="_blank"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; text-decoration:none; border:2px solid #d67cff; color:#d67cff; background:none; margin-bottom:8px;">
+   📩 문의
+</a>
+
+<button id="customBtnMenu"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #d67cff; color:#d67cff; background:none; margin-bottom:8px;">
+   ⚙️ 설정
 </button>
-<button id="donateBtn" 
-    style="background:none; border:2px solid #ff6b6b; color:#ff6b6b; font-weight:600; border-radius:8px; cursor:pointer; width:100%; padding:6px 0; margin-top:6px;">
-    💖 후원
+
+<button id="viewTrafficBtn"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #00fff2; color:#00ffff; background:none; margin-bottom:8px;">
+   📊 트래픽 조회
 </button>
+
+<a href="https://naver.me/GcKVxHTB" target="_blank"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; text-decoration:none; border:2px solid #00c73c; color:#00c73c; background:none; margin-bottom:8px;">
+   🏠 카페 바로가기
+</a>
+
+<button id="viewFavsBtn"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #ffd700; color:#ffd700; background:none; margin-bottom:8px;">
+   ⭐ 즐겨찾기 보기
+</button>
+
+<button id="donateBtn"
+   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #ff6b6b; color:#ff6b6b; background:none; margin-bottom:8px;">
+   💖 후원
+</button>
+
   </div>
 </header>
 
@@ -232,12 +245,11 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <h3>후원 안내</h3>
     <p>여러분의 후원은 서비스 유지에 큰 힘이 됩니다! 💖</p>
     <p><strong>은행:</strong>케이뱅크 888004288696</p>
-    <p><strong>예금주:</strong> ㄱㅊㅎ</p>
   </div>
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.4 - 제작자 : 마녀
+  @2025 Eleview V1.4.5 - 제작자 : 마녀
 </div>
 
 <!-- Firebase SDK -->
@@ -282,6 +294,11 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   const inputAddr=document.getElementById('buldAddress');
   const btn=document.getElementById('searchBtn');
   const list=document.getElementById('result-list');
+  const favModal = document.getElementById('favModal');
+  const favList = document.getElementById('favList');
+  const searchBtn = document.getElementById('searchBtn'); // 검색 버튼
+  const viewFavsBtn = document.getElementById('viewFavsBtn'); // 모달 열기 버튼
+  const closeFavBtn = document.getElementById('closeFavBtn'); // 모달 닫기 버튼
   const serviceKey='6a8c61a1b9e03198dc42d9460e8bf434e703bc3d0989512930046a21a68e1432';
   const API_OPERATION='https://apis.data.go.kr/B553664/ElevatorOperationService/getOperationInfoListV1';
   const API_VIEW='https://apis.data.go.kr/B553664/ElevatorInformationService/getElevatorViewM';
@@ -451,6 +468,17 @@ closeTrafficModal.addEventListener('click', () => {
   trafficModal.style.display = 'none';
 });
 
+// 하루 한 번 트래픽 초기화
+function resetDailyTraffic() {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const savedDate = localStorage.getItem("trafficDate");
+
+  if (savedDate !== today) {
+    localStorage.setItem("trafficCount", "0"); // 트래픽 초기화
+    localStorage.setItem("trafficDate", today); // 오늘 날짜 저장
+  }
+}
+
 // 모달 닫기
 document.getElementById('closeTrafficModal').addEventListener('click', () => {
   document.getElementById('trafficModal').style.display = 'none';
@@ -490,6 +518,24 @@ document.getElementById('closeTrafficModal').addEventListener('click', () => {
     if(searchColor) btn.style.background=`linear-gradient(180deg, ${searchColor} 0%, ${searchColor} 100%)`;
   });
 
+// 후원 모달
+const donateBtn = document.getElementById('donateBtn');
+const donateModal = document.getElementById('donateModal');
+const closeDonateModal = document.getElementById('closeDonateModal');
+
+donateBtn.addEventListener('click', () => {
+  donateModal.style.display = 'flex';
+});
+
+closeDonateModal.addEventListener('click', () => {
+  donateModal.style.display = 'none';
+});
+
+// 모달 바깥 클릭 시 닫기
+window.addEventListener('click', (e) => {
+  if(e.target === donateModal) donateModal.style.display = 'none';
+});
+
   applyBtn.addEventListener('click', ()=>{
     const file=bgImageInput.files[0];
     const color=bgColorInput.value;
@@ -520,6 +566,85 @@ document.getElementById('closeTrafficModal').addEventListener('click', () => {
     customModal.style.display='none';
   });
 
+// ================================
+// 즐겨찾기 관련 함수
+// ================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  const viewFavsBtn = document.getElementById('viewFavsBtn');
+  const favModal = document.getElementById('favModal');
+  const closeFavModal = document.getElementById('closeFavModal');
+  const favList = document.getElementById('favList');
+
+  // ================================
+  // 즐겨찾기 모달 열기/닫기
+  // ================================
+  viewFavsBtn.addEventListener('click', () => {
+    favModal.style.display = 'flex';
+    renderFavorites();
+  });
+
+  closeFavModal.addEventListener('click', () => {
+    favModal.style.display = 'none';
+  });
+
+  // ================================
+  // 카드 즐겨찾기 버튼 / 즐겨찾기 모달 내 삭제 / 검색 클릭
+  // 이벤트 위임 방식
+  // ================================
+  document.addEventListener('click', e => {
+    // 카드 별표 클릭
+    if (e.target.classList.contains('fav-btn')) {
+      const card = e.target.closest('.card');
+      if (!card) return;
+
+      const elevatorNo = e.target.dataset.elevator;
+      const buldNm = card.querySelector('h3')?.textContent || '';
+      
+      let favs = getFavorites();
+      const index = favs.findIndex(f => f.elevatorNo === elevatorNo);
+      
+      if (index === -1) {
+        favs.push({ elevatorNo, buldNm });
+      } else {
+        favs.splice(index, 1);
+      }
+      saveFavorites(favs);
+      renderFavorites();
+      updateCardStars();
+    }
+
+    // 즐겨찾기 모달 내 삭제 버튼
+    if (e.target.classList.contains('remove-fav-btn')) {
+      e.stopPropagation();
+      const parent = e.target.closest('.fav-item');
+      const elevatorNo = parent.dataset.elevator;
+      let favs = getFavorites();
+      favs = favs.filter(f => f.elevatorNo !== elevatorNo);
+      saveFavorites(favs);
+      renderFavorites();
+      updateCardStars();
+    }
+
+    // 즐겨찾기 모달 내 즐겨찾기 클릭 -> 검색
+    if (e.target.classList.contains('fav-name')) {
+      const parent = e.target.closest('.fav-item');
+      const elevatorNo = parent.dataset.elevator;
+      if (elevatorNo) {
+        inputNo.value = elevatorNo;
+        favModal.style.display = 'none';
+        searchBtn.click();
+      }
+    }
+  });
+
+  // 초기 로드 시 카드 별표 상태 적용
+  updateCardStars();
+});
+
+// ================================
+// 즐겨찾기 가져오기 / 저장
+// ================================
 function getFavorites() {
   return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
@@ -528,86 +653,47 @@ function saveFavorites(favs) {
   localStorage.setItem('favorites', JSON.stringify(favs));
 }
 
-// 즐겨찾기 버튼 클릭
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('fav-btn')) {
-    const card = e.target.closest('.card');
-    const elevatorNo = e.target.dataset.elevator;
-    const buldNm = card.querySelector('h3')?.textContent || '';
-    const elvtrModel = card.querySelector('.info strong')?.textContent || ''; // 모델명
-    let favs = getFavorites();
-    const existingIndex = favs.findIndex(f => f.elevatorNo === elevatorNo);
+// ================================
+// 즐겨찾기 렌더링
+// ================================
+function renderFavorites() {
+  const favList = document.getElementById('favList');
+  const favs = getFavorites().filter(f => f.elevatorNo || f.buldNm);
 
-    if (existingIndex > -1) {
-      favs.splice(existingIndex, 1);
-      e.target.textContent = '☆';
-    } else {
-      favs.push({ elevatorNo, buldNm, elvtrModel });
-      e.target.textContent = '★';
-    }
-    saveFavorites(favs);
+  if (favs.length === 0) {
+    favList.innerHTML = '<p>즐겨찾기 없음</p>';
+    return;
   }
-});
 
-// 카드 생성 후 즐겨찾기 상태 적용
-function updateCardFavorites() {
+  favList.innerHTML = favs.map(f => {
+    let text = f.buldNm || '';
+    if (f.buldNm && f.elevatorNo) text += ` (${f.elevatorNo})`;
+    else if (!f.buldNm && f.elevatorNo) text = f.elevatorNo;
+
+    return `
+      <div class="fav-item" data-elevator="${f.elevatorNo}" style="padding:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:rgba(255,215,0,0.1); border-radius:6px; margin-bottom:4px;">
+        <span class="fav-name"><strong>${text}</strong></span>
+        <button class="remove-fav-btn" style="background:red; border:none; color:#fff; border-radius:4px; padding:2px 6px;">삭제</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ================================
+// 카드 별표 상태 업데이트
+// ================================
+function updateCardStars() {
   const favs = getFavorites();
-  document.querySelectorAll('.card').forEach(card => {
-    const btn = card.querySelector('.fav-btn');
-    if (btn && favs.includes(btn.dataset.elevator)) btn.textContent = '★';
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    const elNo = btn.dataset.elevator;
+    if (favs.find(f => f.elevatorNo === elNo)) {
+      btn.textContent = '★'; // 즐겨찾기 있음
+    } else {
+      btn.textContent = '☆'; // 즐겨찾기 없음
+    }
   });
 }
 
-// 검색 후 카드 렌더링 끝난 뒤 호출
-btn.addEventListener('click', async ()=>{
-  updateCardFavorites();
-});
-
-const favModal = document.getElementById('favModal');
-const favList = document.getElementById('favList');
-
-document.addEventListener('DOMContentLoaded', () => {
-  const favModal = document.getElementById('favModal');
-  const favList = document.getElementById('favList');
-
-  document.getElementById('viewFavsBtn').addEventListener('click', ()=>{
-  const favs = getFavorites();
-  if(favs.length===0) favList.innerHTML = '<p>즐겨찾기 없음</p>';
-  else {
-    favList.innerHTML = favs.map(f => 
-      `<div class="fav-item" style="padding:6px; background:rgba(255,255,255,0.05); border-radius:6px; cursor:pointer;">
-        <strong>${f.buldNm}</strong> (${f.elevatorNo})
-      </div>`
-    ).join('');
-
-    // 클릭 시 검색
-    favList.querySelectorAll('.fav-item').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const text = el.textContent.match(/\((.*)\)/)[1]; // 괄호 안 elevatorNo 추출
-        inputNo.value = text;
-        favModal.style.display = 'none';
-        btn.click();
-      });
-    });
-  }
-  favModal.style.display='flex';
-});
-
-  document.getElementById('closeFavModal').addEventListener('click', ()=> favModal.style.display='none');
-});
-
-const donateBtn = document.getElementById('donateBtn');
-const donateModal = document.getElementById('donateModal');
-const closeDonateModal = document.getElementById('closeDonateModal');
-
-donateBtn.addEventListener('click', () => {
-  donateModal.style.display = 'flex';
-  menuPanel.style.display = 'none'; // 메뉴 닫기
-});
-
-closeDonateModal.addEventListener('click', () => {
-  donateModal.style.display = 'none';
-});
 
 // 모달 바깥 클릭 시 닫기
 window.addEventListener('click', (e) => {
