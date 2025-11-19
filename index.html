@@ -603,7 +603,6 @@ auth.onAuthStateChanged(async (user) => {
     );
 
     // 저장
-    saveFavorites(merged);
 
     // 클라우드에도 저장
     favCloudRef(user.uid).set(merged);
