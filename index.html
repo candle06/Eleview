@@ -576,6 +576,7 @@ loginDoBtn.addEventListener("click", () => {
 // ===============================
 // 자동 로그인 감지 + 즐겨찾기 동기화
 // ===============================
+let localFavs = getFavorites();
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     console.log("로그인됨:", user.email);
@@ -594,18 +595,23 @@ auth.onAuthStateChanged(async (user) => {
     const cloudFavs = snap.val() || [];
 
     // localStorage와 merge
-    let localFavs = getFavorites();
-    let merged = [...localFavs, ...cloudFavs];
+    // cloudFavs가 문자열일 수도 있으므로 변환
+let normalizedCloud = (cloudFavs || []).map(f => {
+  if (typeof f === "string") return { elevatorNo: f, buldNm: "" };
+  return f;
+  merged = [...localFavs, ...cloudFavs];
+});
 
-    // 중복 제거
-    merged = merged.filter(
-      (v, i, a) => a.findIndex(t => t.elevatorNo === v.elevatorNo) === i
-    );
+// localFavs + cloudFavs 병합
+let merged = [...localFavs, ...normalizedCloud];
 
-    // 저장
+// 중복 제거
+merged = merged.filter(
+  (v, i, arr) => arr.findIndex(t => t.elevatorNo === v.elevatorNo) === i
+);
 
-    // 클라우드에도 저장
-    favCloudRef(user.uid).set(merged);
+// 로컬 + 클라우드 저장
+saveFavorites(merged);
 
     renderFavorites();
     updateCardStars();
@@ -743,23 +749,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeFavModal = document.getElementById('closeFavModal');
   const favList = document.getElementById('favList');
 
-  // ================================
-  // 즐겨찾기 모달 열기/닫기
-  // ================================
+  // 즐겨찾기 모달 열기
   viewFavsBtn.addEventListener('click', () => {
     favModal.style.display = 'flex';
     renderFavorites();
   });
 
+  // 즐겨찾기 모달 닫기
   closeFavModal.addEventListener('click', () => {
     favModal.style.display = 'none';
   });
 
-  // ================================
-  // 카드 즐겨찾기 버튼 / 즐겨찾기 모달 내 삭제 / 검색 클릭
-  // 이벤트 위임 방식
-  // ================================
-  document.addEventListener('click', e => {
+  // 카드 즐겨찾기 + 모달 삭제 버튼 이벤트 위임
+  document.addEventListener('click', (e) => {
+
     // 카드 별표 클릭
     if (e.target.classList.contains('fav-btn')) {
       const card = e.target.closest('.card');
@@ -780,13 +783,13 @@ document.addEventListener('DOMContentLoaded', () => {
       renderFavorites();
       updateCardStars();
     }
-  })})
 
-    // 즐겨찾기 모달 내 삭제 버튼
+    // 즐겨찾기 모달 내 삭제 버튼 클릭
     if (e.target.classList.contains('remove-fav-btn')) {
       e.stopPropagation();
       const parent = e.target.closest('.fav-item');
       const elevatorNo = parent.dataset.elevator;
+
       let favs = getFavorites();
       favs = favs.filter(f => f.elevatorNo !== elevatorNo);
       saveFavorites(favs);
@@ -794,22 +797,26 @@ document.addEventListener('DOMContentLoaded', () => {
       updateCardStars();
     }
 
-    // 즐겨찾기 클릭 -> 검색
-  favList.querySelectorAll('.fav-name').forEach(el=>{
-    el.addEventListener('click',()=>{
+  });
+
+  // 즐겨찾기 클릭 -> 검색
+  favList.querySelectorAll('.fav-name').forEach(el => {
+    el.addEventListener('click', (e) => {
       const parent = el.closest('.fav-item');
       const elevatorNo = parent.dataset.elevator;
-      if(elevatorNo){
+      if (elevatorNo) {
         inputNo.value = elevatorNo;
-        favModal.style.display='none';
+        favModal.style.display = 'none';
         searchBtn.click();
-      
-    }
+      }
+    });
   });
 
   // 초기 로드 시 카드 별표 상태 적용
   updateCardStars();
+
 });
+
 
 // ================================
 // 즐겨찾기 가져오기 / 저장
@@ -820,6 +827,12 @@ function getFavorites() {
 
 function saveFavorites(favs) {
   localStorage.setItem('favorites', JSON.stringify(favs));
+
+  // 로그인 상태면 클라우드에도 저장
+  const user = firebase.auth().currentUser;
+  if (user) {
+    favCloudRef(user.uid).set(favs);
+  }
 }
 
 // ================================
