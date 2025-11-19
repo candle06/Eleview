@@ -133,6 +133,126 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   color: #ffd700;
   text-shadow: 0 0 6px #ffd700aa, 0 0 12px #ffb70066;
 }
+/* ===========================
+   로그인 버튼 (햄버거 메뉴)
+=========================== */
+#loginBtn {
+  border: 2px solid #4da3ff;
+  color: #4da3ff;
+  background: rgba(77, 163, 255, 0.08);
+  padding: 8px 0;
+  width: 100%;
+  border-radius: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+#loginBtn:hover {
+  background: #4da3ff;
+  color: white;
+  box-shadow: 0 0 12px rgba(77, 163, 255, 0.5);
+}
+
+
+/* ===========================
+   로그인 모달 전체 배경
+=========================== */
+#loginModal {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+
+/* ===========================
+   로그인 모달 박스
+=========================== */
+#loginModal .login-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(77, 163, 255, 0.45);
+  border-radius: 14px;
+  width: 90%;
+  max-width: 350px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+
+/* ===========================
+   입력창
+=========================== */
+#loginEmail,
+#loginPw {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(77,163,255,0.4);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  outline: none;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+#loginEmail:focus,
+#loginPw:focus {
+  border-color: #4da3ff;
+  box-shadow: 0 0 6px rgba(77,163,255,0.6);
+}
+
+
+/* ===========================
+   로그인/회원가입 버튼
+=========================== */
+#loginDoBtn,
+#signupDoBtn,
+#closeLoginModal {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  color: white;
+}
+
+#loginDoBtn,
+#signupDoBtn {
+  background: linear-gradient(135deg, #4da3ff, #1b76d1);
+  box-shadow: 0 4px 12px rgba(77,163,255,0.3);
+}
+
+#loginDoBtn:hover,
+#signupDoBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(77,163,255,0.4);
+}
+
+#closeLoginModal {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(200,200,200,0.2);
+}
+
+#closeLoginModal:hover {
+  background: rgba(255,255,255,0.2);
+}
 </style>
 </head>
 <body style="background:#000000;">
@@ -158,6 +278,13 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 <button id="customBtnMenu"
    style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #d67cff; color:#d67cff; background:none; margin-bottom:8px;">
    ⚙️ 설정
+</button>
+
+<button id="loginBtn"
+   style="display:block; width:100%; padding:6px 0; font-weight:600;
+   border-radius:8px; text-align:center; cursor:pointer;
+   border:2px solid #4da3ff; color:#4da3ff; background:none; margin-bottom:8px;">
+   🔐 로그인
 </button>
 
 <button id="viewTrafficBtn"
@@ -249,6 +376,24 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   </div>
 </div>
 
+<div id="loginModal" style="display:none; position:fixed; inset:0;
+background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:20;">
+  <div style="background:#111; padding:20px; border-radius:12px;
+  width:90%; max-width:350px; display:flex; flex-direction:column; gap:10px;">
+
+    <h3>로그인</h3>
+    <input id="loginEmail" type="email" placeholder="이메일"
+     style="padding:10px; border-radius:8px; border:none;">
+    <input id="loginPw" type="password" placeholder="비밀번호"
+     style="padding:10px; border-radius:8px; border:none;">
+
+    <button id="loginDoBtn" class="btn">로그인</button>
+    <button id="signupDoBtn" class="btn">회원가입</button>
+    <button id="closeLoginModal" class="btn">닫기</button>
+
+  </div>
+</div>
+
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
   @2025 Eleview V1.4.5 - 제작자 : 마녀
 </div>
@@ -256,7 +401,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
   // ==== Firebase 동접자 ====
   const firebaseConfig = {
@@ -426,6 +571,106 @@ const trafficRef = db.ref('traffic');
     }
 })
   document.getElementById('closeHistoryBtn').addEventListener('click', ()=>{ document.getElementById('historyModal').style.display='none'; });
+
+// ===============================
+// Firebase Auth
+// ===============================
+const auth = firebase.auth();
+const favCloudRef = (uid) => db.ref("favorites/" + uid);
+
+// 로그인 모달 요소
+const loginBtn = document.getElementById("loginBtn");
+const loginModal = document.getElementById("loginModal");
+const loginDoBtn = document.getElementById("loginDoBtn");
+const signupDoBtn = document.getElementById("signupDoBtn");
+const closeLoginModal = document.getElementById("closeLoginModal");
+
+// 로그인 버튼 클릭 → 모달 열기
+loginBtn.addEventListener("click", () => {
+  loginModal.style.display = "flex";
+});
+
+// 모달 닫기
+closeLoginModal.addEventListener("click", () => {
+  loginModal.style.display = "none";
+});
+
+// ===============================
+// 회원가입
+// ===============================
+signupDoBtn.addEventListener("click", () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const pw = document.getElementById("loginPw").value.trim();
+
+  auth.createUserWithEmailAndPassword(email, pw)
+    .then(() => {
+      alert("회원가입 완료! 자동 로그인됩니다.");
+    })
+    .catch(err => alert(err.message));
+});
+
+// ===============================
+// 로그인
+// ===============================
+loginDoBtn.addEventListener("click", () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const pw = document.getElementById("loginPw").value.trim();
+
+  auth.signInWithEmailAndPassword(email, pw)
+    .then(() => {
+      loginModal.style.display = "none";
+    })
+    .catch(err => alert(err.message));
+});
+
+// ===============================
+// 자동 로그인 감지 + 즐겨찾기 동기화
+// ===============================
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    console.log("로그인됨:", user.email);
+
+    // 로그인 버튼 → 로그아웃 버튼으로 변경
+    loginBtn.textContent = "🚪 로그아웃";
+    loginBtn.style.borderColor = "#ff4444";
+    loginBtn.style.color = "#ff4444";
+
+    loginBtn.onclick = () => {
+      auth.signOut();
+    };
+
+    // 클라우드 즐겨찾기 가져오기
+    const snap = await favCloudRef(user.uid).once("value");
+    const cloudFavs = snap.val() || [];
+
+    // localStorage와 merge
+    let localFavs = getFavorites();
+    let merged = [...localFavs, ...cloudFavs];
+
+    // 중복 제거
+    merged = merged.filter(
+      (v, i, a) => a.findIndex(t => t.elevatorNo === v.elevatorNo) === i
+    );
+
+    // 저장
+    saveFavorites(merged);
+
+    // 클라우드에도 저장
+    favCloudRef(user.uid).set(merged);
+
+    renderFavorites();
+    updateCardStars();
+  } else {
+    console.log("로그아웃됨");
+    loginBtn.textContent = "🔐 로그인";
+    loginBtn.style.borderColor = "#4da3ff";
+    loginBtn.style.color = "#4da3ff";
+
+    loginBtn.onclick = () => {
+      loginModal.style.display = 'flex';
+    };
+  }
+});
 
 // 검색 버튼 클릭 시
 btn.addEventListener('click', async () => {
