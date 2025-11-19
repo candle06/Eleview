@@ -243,7 +243,8 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px; text-align:center; color:#fff;">
     <button id="closeDonateModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>후원 안내</h3>
-    <p>여러분의 후원은 서비스 유지에 큰 힘이 됩니다! 💖</p>
+    <p>후원금은 서비스 유지에 사용됩니다</p>
+    <p>(앱출시에 사용예정)</p>
     <p><strong>은행:</strong>케이뱅크 888004288696</p>
   </div>
 </div>
@@ -333,7 +334,7 @@ const trafficRef = db.ref('traffic');
     }
     return current;
   });
-    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'20' });
+    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
     list.innerHTML='';
@@ -453,7 +454,7 @@ const closeTrafficModal = document.getElementById('closeTrafficModal');
 
 viewTrafficBtn.addEventListener('click', () => {
   trafficRef.once('value').then(snapshot => {
-    const data = snapshot.val() || { limit: 10000, used: 0 };
+    const data = snapshot.val() || { limit: 100000, used: 0 };
     const remaining = data.limit - data.used;
 
     trafficContent.innerHTML = `
