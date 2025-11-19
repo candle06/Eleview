@@ -110,16 +110,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   box-shadow: 0 6px 18px rgba(255,215,0,0.5);
 }
 
-#trafficModal > div {
-  background: linear-gradient(145deg, #1a002e, #3a0060);
-  box-shadow: 0 10px 24px rgba(0,255,255,0.5), 0 0 10px rgba(0,255,255,0.25) inset;
-  color: #fff;
-}
-#trafficContent {
-  font-size: 14px;
-  line-height: 1.6;
-  text-align: center;
-}
 #donateModal > div {
   background: linear-gradient(135deg, #2e0000, #44001a);
   box-shadow: 0 10px 28px rgba(255,107,107,0.5), 0 0 12px rgba(255,107,107,0.25) inset;
@@ -287,11 +277,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
    🔐 로그인
 </button>
 
-<button id="viewTrafficBtn"
-   style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #00fff2; color:#00ffff; background:none; margin-bottom:8px;">
-   📊 트래픽 조회
-</button>
-
 <a href="https://naver.me/GcKVxHTB" target="_blank"
    style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; text-decoration:none; border:2px solid #00c73c; color:#00c73c; background:none; margin-bottom:8px;">
    🏠 카페 바로가기
@@ -315,14 +300,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <button id="closeFavModal" class="btn" style="align-self:flex-end;">닫기</button>
     <h3>즐겨찾기 목록</h3>
     <div id="favList"></div>
-  </div>
-</div>
-
-<div id="trafficModal" style="display:none; position:fixed; inset:0; justify-content:center; align-items:center; z-index:10; background:rgba(0,0,0,0.7);">
-  <div style="background:#111; padding:20px; border-radius:12px; max-width:400px; width:90%; display:flex; flex-direction:column; gap:10px;">
-    <button id="closeTrafficModal" class="btn" style="align-self:flex-end;">닫기</button>
-    <h3>실시간 트래픽</h3>
-    <div id="trafficContent" style="font-size:14px; line-height:1.6;"></div>
   </div>
 </div>
 
@@ -449,36 +426,10 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
   const API_OPERATION='https://apis.data.go.kr/B553664/ElevatorOperationService/getOperationInfoListV1';
   const API_VIEW='https://apis.data.go.kr/B553664/ElevatorInformationService/getElevatorViewM';
   const API_HISTORY='https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrInspctInqireM';
-  function getElevatorIcon(type){
-    if(!type) return ['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
-    type=type.trim(); let icons=[];
-    if(type.includes('승객')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/elevator.png');
-    if(type.includes('전망')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/mountain.png');
-    if(type.includes('병원')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/hospital.png');
-    if(type.includes('장애인')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/wheelchair.png');
-    if(type.includes('소방구조')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/fire-truck.png');
-    if(type.includes('피난')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/exit.png');
-    if(type.includes('주택')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/home.png');
-    if(type.includes('화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/package.png');
-    if(type.includes('자동차')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/car.png');
-    if(type.includes('소형화물')) icons.push('https://img.icons8.com/ios-filled/50/ffffff/small-package.png');
-    return icons.length?icons:['https://img.icons8.com/ios-filled/50/ffffff/help.png'];
-  }
-
-  // 트래픽 데이터 참조
-const trafficRef = db.ref('traffic');
 
   btn.addEventListener('click', async ()=>{
     const query=inputNo.value.trim();
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
-     // 검색 전에 트래픽 증가
-  trafficRef.transaction(current => {
-    if(current){
-      if(!current.used) current.used = 0;
-      current.used++;
-    }
-    return current;
-  });
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
@@ -493,7 +444,6 @@ const trafficRef = db.ref('traffic');
         const get=(t)=>item.getElementsByTagName(t)[0]?.textContent||'';
         const elevatorNo=get("elevatorNo");
         const kind=get("elvtrKindNm");
-        const icons=getElevatorIcon(kind);
         const viewUrl=`${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
         const viewRes=await fetch(viewUrl);
         const viewXml=await viewRes.text();
@@ -670,64 +620,6 @@ auth.onAuthStateChanged(async (user) => {
       loginModal.style.display = 'flex';
     };
   }
-});
-
-// 검색 버튼 클릭 시
-btn.addEventListener('click', async () => {
-  const query = inputNo.value.trim();
-
-  // 트래픽 업데이트
-  trafficRef.transaction(current => {
-    if (current === null) return { limit: 100000, used: 1 }; // 초기화
-    if (current.used < current.limit) {
-      current.used + 1;
-    }
-    return current;
-  }).then(result => {
-    const data = result.snapshot.val();
-    console.log('트래픽 상태:', data);
-  });
-
-  // 기존 검색 코드 실행
-});
-
-// 햄버거 메뉴 → 트래픽 조회 버튼
-const viewTrafficBtn = document.getElementById('viewTrafficBtn');
-const trafficModal = document.getElementById('trafficModal');
-const trafficContent = document.getElementById('trafficContent');
-const closeTrafficModal = document.getElementById('closeTrafficModal');
-
-viewTrafficBtn.addEventListener('click', () => {
-  trafficRef.once('value').then(snapshot => {
-    const data = snapshot.val() || { limit: 100000, used: 0 };
-    const remaining = data.limit - data.used;
-
-    trafficContent.innerHTML = `
-      <p>사용량: ${data.used}회</p>
-    `;
-
-    trafficModal.style.display = 'flex';
-  });
-});
-
-closeTrafficModal.addEventListener('click', () => {
-  trafficModal.style.display = 'none';
-});
-
-// 하루 한 번 트래픽 초기화
-function resetDailyTraffic() {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const savedDate = localStorage.getItem("trafficDate");
-
-  if (savedDate !== today) {
-    localStorage.setItem("trafficCount", "0"); // 트래픽 초기화
-    localStorage.setItem("trafficDate", today); // 오늘 날짜 저장
-  }
-}
-
-// 모달 닫기
-document.getElementById('closeTrafficModal').addEventListener('click', () => {
-  document.getElementById('trafficModal').style.display = 'none';
 });
 
   // ==== 파티클 ====
