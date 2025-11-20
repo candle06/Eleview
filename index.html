@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.5</title>
+<title>Eleview V1.5.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; } 
@@ -251,7 +251,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-  <div class="logo">Eleview V1.5</div>
+  <div class="logo">Eleview V1.5.5</div>
 
   <!-- 햄버거 버튼 -->
   <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -313,8 +313,21 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 </div>
 
 <div class="search">
-  <div class="box"><input id="elevatorNo" type="text" placeholder="승강기 번호 입력"></div>
-  <div class="box"><input id="buldAddress" type="text" placeholder="건물주소 입력"></div>
+  <div class="box">
+    <input 
+      id="elevatorNo" 
+      type="text" 
+      placeholder="승강기 번호 입력"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      autocomplete="off"
+    >
+  </div>
+
+  <div class="box">
+    <input id="buldAddress" type="text" placeholder="건물주소 입력">
+  </div>
+
   <button class="btn" id="searchBtn">검색</button>
 </div>
 
@@ -331,6 +344,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <label>검색 버튼 텍스트: <input type="text" id="searchText" value="검색"></label>
     <label>검색 버튼 색상: <input type="color" id="searchColor" value="#9b5cff"></label>
     <button class="btn" id="applyBtn">적용</button>
+    <!-- 글씨 색상 선택 -->
+<label>글씨 색상 선택</label>
+<input type="color" id="textColorPicker" value="#000000" />
+<button id="applyTextColorBtn">적용</button>
     <button class="btn" id="closeModal">닫기</button>
   </div>
 </div>
@@ -372,7 +389,7 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.5 - 제작자 : 마녀
+  @2025 Eleview V1.5.5 - 제작자 : 마녀
 </div>
 
 <!-- Firebase SDK -->
@@ -527,6 +544,31 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
 // ===============================
 const auth = firebase.auth();
 const favCloudRef = (uid) => db.ref("favorites/" + uid);
+
+// 글씨 색 적용
+const textColorPicker = document.getElementById('textColorPicker');
+const applyTextColorBtn = document.getElementById('applyTextColorBtn');
+
+// 저장된 값 적용 (초기 로드)
+document.addEventListener('DOMContentLoaded', () => {
+  const elevatorNoInput = document.getElementById('elevatorNo');
+
+elevatorNoInput.addEventListener('input', () => {
+  elevatorNoInput.value = elevatorNoInput.value.replace(/[^0-9]/g, '');
+});
+  const savedTextColor = localStorage.getItem('textColor');
+  if (savedTextColor) {
+    document.body.style.color = savedTextColor;
+    textColorPicker.value = savedTextColor;
+  }
+});
+
+// 버튼 클릭 시 글씨 색 변경
+applyTextColorBtn.addEventListener('click', () => {
+  const selectedColor = textColorPicker.value;
+  document.body.style.color = selectedColor;
+  localStorage.setItem('textColor', selectedColor);
+});
 
 // 로그인 모달 요소
 const loginBtn = document.getElementById("loginBtn");
