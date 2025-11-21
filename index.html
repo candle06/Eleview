@@ -1092,8 +1092,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const parent = e.target.closest('.fav-item');
       const elevatorNo = parent.dataset.elevator;
 
-      let favs = getFavorites();
       favs = favs.filter(f => f.elevatorNo !== elevatorNo);
+saveFavorites(favs); // 로컬 저장
+
+// 🔥 클라우드에서도 삭제
+const user = firebase.auth().currentUser;
+if (user) {
+  favCloudRef(user.uid).set(favs);
+}
       saveFavorites(favs);
       renderFavorites();
       updateCardStars();
