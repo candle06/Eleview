@@ -313,9 +313,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   </div>
 </div>
 
-<button class="btn fav-btn" 
-  data-elevator='${elevatorNo}' 
-  style="position:absolute; bottom:12px; right:12px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">☆</button>
 
 <div class="subtitle">
   승강기 정보 조회
@@ -337,7 +334,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   <div class="box">
     <input id="buldAddress" type="text" placeholder="건물주소 입력">
   </div>
-
+<div id="result-list"></div>
   <button class="btn" id="searchBtn">검색</button>
 </div>
 
@@ -604,56 +601,93 @@ firebase.auth().onAuthStateChanged((user)=>{
 // ===========================
 // 리뷰 데이터 저장 (Firebase)
 // ===========================
-function saveReview(){
-  const content = document.getElementById('reviewText').value.trim();
+function saveReview() {
+  const content = document.getElementById("reviewText").value.trim();
   const user = firebase.auth().currentUser;
-  if(!user) return alert("로그인 후 작성 가능");
-  if(!content) return alert("리뷰 내용을 입력해주세요");
 
-  const ref = db.ref('reviews').push();
+  if (!user) return alert("로그인 후 작성하세요.");
+  if (!content) return alert("리뷰를 입력하세요.");
+
+  // 날짜 문자열 생성
+  const now = new Date();
+  const formatted = now.getFullYear() + "-" +
+                    String(now.getMonth()+1).padStart(2,"0") + "-" +
+                    String(now.getDate()).padStart(2,"0") + " " +
+                    String(now.getHours()).padStart(2,"0") + ":" +
+                    String(now.getMinutes()).padStart(2,"0");
+
+  const ref = db.ref("reviews").push();
   ref.set({
     uid: user.uid,
     email: user.email,
     content: content,
-    time: Date.now()
-  }).then(()=>{
+    time: Date.now(),      // 최신순 정렬용
+    dateString: formatted  // 화면에 표시용
+  }).then(() => {
     alert("리뷰가 저장되었습니다!");
-    document.getElementById('reviewModal').style.display='none';
-    document.getElementById('reviewText').value = '';
-  })
+    document.getElementById("reviewModal").style.display = "none";
+    document.getElementById("reviewText").value = "";
+  });
 }
 
 // ===========================
 // 관리자용 리뷰 목록 로드
 // ===========================
-function loadAllReviews(){
-  const box = document.getElementById('reviewListBox');
-  box.innerHTML = "불러오는 중...";
-
-  db.ref('reviews').once('value', snap=>{
-    if(!snap.exists()){
-      box.innerHTML = "리뷰 없음";
-      return;
-    }
-
-    let html = "";
-    snap.forEach(item=>{
-      const val = item.val();
-      html += `
-      <div style="padding:10px; border-bottom:1px solid #444;">
-        <strong>작성자:</strong> ${val.email}<br>
-        <strong>내용:</strong> ${val.content}<br>
-        <button onclick="deleteReview('${item.key}')" style="margin-top:6px; padding:4px 8px; background:#ff4444; color:#fff; border:none; border-radius:6px;">삭제</button>
-      </div>`;
-    });
-    box.innerHTML = html;
-  });
-}
-
 function deleteReview(key){
   if(!confirm("정말 삭제하시겠습니까?")) return;
   db.ref('reviews/'+key).remove().then(()=>{
     loadAllReviews();
+  });
+}
+
+function loadAllReviews() {
+  const box = document.getElementById("reviewListBox");
+  box.innerHTML = "불러오는 중...";
+
+  db.ref("reviews").once("value", snap => {
+    if (!snap.exists()) {
+      box.innerHTML = "리뷰 없음";
+      return;
+    }
+
+    let arr = [];
+    snap.forEach(item => {
+      arr.push({ key: item.key, ...item.val() });
+    });
+
+    // 🔥 최신순 정렬
+    arr.sort((a, b) => b.time - a.time);
+
+    let html = "";
+    arr.forEach(v => {
+      html += `
+        <div style="
+          padding:14px;
+          border-radius:12px;
+          background:rgba(255,255,255,0.06);
+          border:1px solid rgba(255,88,88,0.25);
+          margin-bottom:10px;">
+          
+          <div><strong>👤 작성자:</strong> ${v.email}</div>
+          <div><strong>🕒 작성일:</strong> ${v.dateString}</div>
+
+          <div style="margin-top:6px; white-space:pre-line;">
+            <strong>📝 내용:</strong><br>${v.content}
+          </div>
+
+          <button onclick="deleteReview('${v.key}')"
+            style="
+              margin-top:10px; padding:6px 0;
+              background:#ff4444; border:none;
+              border-radius:8px; width:100%;
+              color:white; font-weight:600;">
+            삭제
+          </button>
+        </div>
+      `;
+    });
+
+    box.innerHTML = html;
   });
 }
   // ==== 검색 & API & 결과 ====
@@ -663,7 +697,6 @@ function deleteReview(key){
   const list=document.getElementById('result-list');
   const favModal = document.getElementById('favModal');
   const favList = document.getElementById('favList');
-  const searchBtn = document.getElementById('searchBtn'); // 검색 버튼
   const viewFavsBtn = document.getElementById('viewFavsBtn'); // 모달 열기 버튼
   const closeFavBtn = document.getElementById('closeFavBtn'); // 모달 닫기 버튼
   const serviceKey='6a8c61a1b9e03198dc42d9460e8bf434e703bc3d0989512930046a21a68e1432';
@@ -865,10 +898,10 @@ auth.onAuthStateChanged(async (user) => {
 
     // localStorage와 merge
     // cloudFavs가 문자열일 수도 있으므로 변환
+// cloudFavs가 문자열일 수도 있으므로 변환
 let normalizedCloud = (cloudFavs || []).map(f => {
   if (typeof f === "string") return { elevatorNo: f, buldNm: "" };
   return f;
-  merged = [...localFavs, ...cloudFavs];
 });
 
 // localFavs + cloudFavs 병합
