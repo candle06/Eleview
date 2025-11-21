@@ -313,7 +313,36 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   </div>
 </div>
 
+<!-- 📢 공지 모달 -->
+<div id="noticeModal" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.65); backdrop-filter:blur(6px);
+  justify-content:center; align-items:center; z-index:99999;">
+  
+  <div style="
+    background:rgba(20,20,30,0.9);
+    border:1px solid rgba(255,200,0,0.5);
+    border-radius:14px; padding:20px;
+    width:90%; max-width:380px;">
+    
+    <h3 style="margin:0 0 10px 0; color:#ffd700;">📢 공지사항</h3>
+    <div id="noticeContent" style="white-space:pre-line; color:white; margin-bottom:15px;"></div>
 
+    <button id="hideTodayBtn" style="
+      width:100%; padding:10px; margin-bottom:8px;
+      background:#ffd700; border:none; color:black;
+      border-radius:10px; font-weight:700;">
+      오늘 하루 보지 않기
+    </button>
+
+    <button id="closeNoticeBtn" style="
+      width:100%; padding:10px;
+      background:#444; border:none; color:white;
+      border-radius:10px; font-weight:600;">
+      닫기
+    </button>
+  </div>
+</div>
 <div class="subtitle">
   승강기 정보 조회
   <div id="visitorCount">접속자: 0명</div>
@@ -582,7 +611,86 @@ firebase.auth().onAuthStateChanged((user)=>{
       document.getElementById('reviewModal').style.display = 'flex';
     };
     menuPanel.appendChild(reviewBtn);
+// =========================
+// 📢 공지 팝업 기능 (최종버전)
+// =========================
 
+// 오늘 날짜 YYYY-MM-DD
+function todayDate(){
+  return new Date().toISOString().split("T")[0];
+}
+
+// 오늘 숨기기 저장 (공지 내용도 같이 저장)
+function hideNoticeForToday(msg){
+  localStorage.setItem("hideNoticeDate", todayDate());
+  localStorage.setItem("hideNoticeMsg", msg);
+}
+
+// 오늘 숨기기 여부 확인
+// 👉 날짜도 같고, 공지 내용도 같아야 숨김 유지
+function isHiddenToday(currentMsg){
+  const savedDate = localStorage.getItem("hideNoticeDate");
+  const savedMsg = localStorage.getItem("hideNoticeMsg");
+
+  return (savedDate === todayDate() && savedMsg === currentMsg);
+}
+
+// 공지 표시 함수
+function showNotice(msg){
+  if(!msg) return;
+
+  // "오늘 하루 보지 않기"가 활성화되었는지 체크
+  if(isHiddenToday(msg)) return;
+
+  document.getElementById("noticeContent").textContent = msg;
+  document.getElementById("noticeModal").style.display = "flex";
+}
+
+// ================================
+// 📌 공지 모달 버튼 이벤트
+// ================================
+
+// 닫기 버튼
+document.getElementById("closeNoticeBtn").addEventListener("click", ()=>{
+  document.getElementById("noticeModal").style.display = "none";
+});
+
+// 오늘 하루 안보기 버튼
+document.getElementById("hideTodayBtn").addEventListener("click", ()=>{
+  const msg = document.getElementById("noticeContent").textContent.trim();
+  hideNoticeForToday(msg);
+  document.getElementById("noticeModal").style.display = "none";
+});
+
+// ================================
+// 📡 Firebase 공지 자동 표시
+// ================================
+db.ref("notice/message").on("value", snap=>{
+  const msg = snap.val();
+  if(msg){
+    showNotice(msg);
+  }
+});
+
+// ================================
+// 📢 관리자: 공지 등록 버튼 추가
+// ================================
+if (user && user.email === ADMIN_EMAIL) {
+  const noticeBtn = document.createElement('button');
+  noticeBtn.textContent = "📢 공지 등록";
+  noticeBtn.style.cssText =
+    "padding:6px 0; border-radius:8px; border:2px solid #ffd700; color:#ffd700; background:none; font-weight:600; width:100%;";
+
+  noticeBtn.onclick = async ()=>{
+    const msg = prompt("공지 내용을 입력하세요:");
+    if(msg && msg.trim()){
+      await db.ref("notice/message").set(msg.trim());
+      alert("공지 등록 완료!");
+    }
+  };
+
+  menuPanel.appendChild(noticeBtn);
+}
     // ⭐ 관리자 전용 메뉴
     if(user.email === ADMIN_EMAIL){
       const adminBtn = document.createElement('button');
