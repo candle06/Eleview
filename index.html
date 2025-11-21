@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.5.5</title>
+<title>Eleview V1.6</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; } 
@@ -251,7 +251,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-  <div class="logo">Eleview V1.5.5</div>
+  <div class="logo">Eleview V1.6</div>
 
   <!-- 햄버거 버튼 -->
   <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -291,7 +291,21 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
    style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #ff6b6b; color:#ff6b6b; background:none; margin-bottom:8px;">
    💖 후원
 </button>
+<!-- 로그인한 일반 유저용: 리뷰 작성 버튼 -->
+<button id="reviewBtn"
+   style="display:none; width:100%; padding:6px 0; font-weight:600;
+   border-radius:8px; text-align:center; cursor:pointer;
+   border:2px solid #66ff99; color:#66ff99; background:none; margin-bottom:8px;">
+   ✏️ 리뷰 작성
+</button>
 
+<!-- 관리자용: 리뷰 관리 버튼 -->
+<button id="adminBtn"
+   style="display:none; width:100%; padding:6px 0; font-weight:600;
+   border-radius:8px; text-align:center; cursor:pointer;
+   border:2px solid #ff4444; color:#ff4444; background:none; margin-bottom:8px;">
+   🛠 리뷰 관리
+</button>
   </div>
 </header>
 
@@ -331,8 +345,132 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   <button class="btn" id="searchBtn">검색</button>
 </div>
 
-<div id="result-list"></div>
+<div id="reviewModal"
+     style="
+       display:none; position:fixed; inset:0;
+       background:rgba(0,0,0,0.65); backdrop-filter:blur(6px);
+       justify-content:center; align-items:center; z-index:9999;
+     ">
+  <div style="
+       width:90%; max-width:360px;
+       background:rgba(20,20,30,0.85);
+       border:1px solid rgba(155,92,255,0.4);
+       border-radius:16px;
+       padding:22px;
+       box-shadow:0 8px 24px rgba(0,0,0,0.6),
+                  0 0 18px rgba(155,92,255,0.35);
+       color:white;
+       display:flex; flex-direction:column; gap:14px;
+       animation:fadeIn 0.25s ease;
+     ">
 
+    <h3 style="
+        margin:0; font-size:20px; font-weight:700;
+        text-align:center;
+        text-shadow:0 0 12px rgba(155,92,255,0.6);
+    ">✏️ 리뷰 작성</h3>
+
+    <textarea id="reviewText"
+      placeholder="여기에 리뷰를 작성하세요..."
+      style="
+         width:90%; height:150px;
+         padding:12px;
+         background:rgba(255,255,255,0.05);
+         border:1px solid rgba(155,92,255,0.3);
+         border-radius:12px;
+         color:white; font-size:14px;
+         resize:none; outline:none;
+         box-shadow:inset 0 0 10px rgba(155,92,255,0.15);
+      ">
+    </textarea>
+
+    <!-- 저장 버튼 -->
+    <button onclick="saveReview()"
+      style="
+        width:100%; padding:10px 0;
+        border:none; border-radius:12px;
+        font-size:15px; font-weight:600;
+        background:linear-gradient(135deg,#9b5cff,#6e22ff);
+        color:white; cursor:pointer;
+        box-shadow:0 6px 18px rgba(155,92,255,0.4);
+        transition:0.2s;
+      "
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      저장하기
+    </button>
+
+    <!-- 닫기 버튼 -->
+    <button onclick="document.getElementById('reviewModal').style.display='none'"
+      style="
+        width:100%; padding:10px 0;
+        border:1px solid rgba(200,200,200,0.2);
+        border-radius:12px;
+        background:rgba(255,255,255,0.06);
+        color:white; font-size:14px;
+        cursor:pointer; transition:0.2s;
+      "
+      onmouseover="this.style.background='rgba(255,255,255,0.12)'"
+      onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+      닫기
+    </button>
+
+  </div>
+</div>
+
+<div id="reviewListModal"
+     style="
+       display:none; position:fixed; inset:0;
+       background:rgba(0,0,0,0.65); 
+       backdrop-filter:blur(6px);
+       justify-content:center; align-items:center; 
+       z-index:9999;
+     ">
+  <div style="
+       width:92%; max-width:420px;
+       background:rgba(20,20,30,0.88);
+       border:1px solid rgba(255,88,88,0.4);
+       border-radius:16px;
+       padding:20px;
+       box-shadow:0 8px 24px rgba(0,0,0,0.6),
+                  0 0 18px rgba(255,88,88,0.35);
+       color:white;
+       display:flex; flex-direction:column; 
+       gap:14px;
+       max-height:85vh; 
+       overflow-y:auto;
+       animation:fadeIn 0.25s ease;
+     ">
+
+    <h3 style="
+        margin:0; font-size:20px; font-weight:700;
+        text-align:center;
+        text-shadow:0 0 12px rgba(255,88,88,0.7);
+    ">🛠 관리자 리뷰 목록</h3>
+
+    <div id="reviewListBox" style="
+        display:flex; flex-direction:column; gap:12px;
+    ">
+      불러오는 중...
+    </div>
+
+    <!-- 닫기 버튼 -->
+    <button onclick="document.getElementById('reviewListModal').style.display='none'"
+      style="
+        width:100%; padding:10px 0;
+        border:1px solid rgba(200,200,200,0.25);
+        border-radius:12px;
+        background:rgba(255,255,255,0.06);
+        color:white; font-size:14px;
+        cursor:pointer; transition:0.2s;
+      "
+      onmouseover="this.style.background='rgba(255,255,255,0.15)'"
+      onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+      닫기
+    </button>
+
+  </div>
+</div>
 
 <div id="customModal">
   <div id="customContent">
@@ -389,7 +527,7 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.5.5 - 제작자 : 마녀
+  @2025 Eleview V1.6 - 제작자 : 마녀
 </div>
 
 <!-- Firebase SDK -->
@@ -428,7 +566,99 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
   menuBtn.addEventListener('click', ()=>{ menuPanel.style.display = menuPanel.style.display === 'flex' ? 'none' : 'flex'; });
   customBtnMenu.addEventListener('click', ()=>{ document.getElementById('customModal').style.display='flex'; menuPanel.style.display='none'; });
   window.addEventListener('click', (e)=>{ if(!menuPanel.contains(e.target) && e.target!==menuBtn) menuPanel.style.display='none'; });
+const ADMIN_EMAIL = "candle0627@gmail.com"; // 🔧 원하는 관리자 이메일로 변경
 
+// 로그인 감지
+firebase.auth().onAuthStateChanged((user)=>{
+  const menuPanel = document.getElementById('menuPanel');
+
+  // 기존 관리자/리뷰 버튼 삭제 후 재생성
+  const oldAdmin = document.getElementById('adminBtn');
+  const oldReview = document.getElementById('reviewBtn');
+  if(oldAdmin) oldAdmin.remove();
+  if(oldReview) oldReview.remove();
+
+  if(user){
+    // ⭐ 일반 유저용: 리뷰 작성
+    const reviewBtn = document.createElement('button');
+    reviewBtn.id = "reviewBtn";
+    reviewBtn.textContent = "✏️ 리뷰 작성";
+    reviewBtn.style.cssText = "padding:6px 0; font-weight:600; border-radius:8px; border:2px solid #66ff99; color:#66ff99; background:none; width:100%;";
+    reviewBtn.onclick = ()=>{
+      document.getElementById('reviewModal').style.display = 'flex';
+    };
+    menuPanel.appendChild(reviewBtn);
+
+    // ⭐ 관리자 전용 메뉴
+    if(user.email === ADMIN_EMAIL){
+      const adminBtn = document.createElement('button');
+      adminBtn.id = "adminBtn";
+      adminBtn.textContent = "🛠 리뷰 관리";
+      adminBtn.style.cssText = "padding:6px 0; font-weight:600; border-radius:8px; border:2px solid #ff4444; color:#ff4444; background:none; width:100%;";
+      adminBtn.onclick = ()=>{
+        document.getElementById('reviewListModal').style.display='flex';
+        loadAllReviews();
+      };
+      menuPanel.appendChild(adminBtn);
+    }
+  }
+});
+
+// ===========================
+// 리뷰 데이터 저장 (Firebase)
+// ===========================
+function saveReview(){
+  const content = document.getElementById('reviewText').value.trim();
+  const user = firebase.auth().currentUser;
+  if(!user) return alert("로그인 후 작성 가능");
+  if(!content) return alert("리뷰 내용을 입력해주세요");
+
+  const ref = db.ref('reviews').push();
+  ref.set({
+    uid: user.uid,
+    email: user.email,
+    content: content,
+    time: Date.now()
+  }).then(()=>{
+    alert("리뷰가 저장되었습니다!");
+    document.getElementById('reviewModal').style.display='none';
+    document.getElementById('reviewText').value = '';
+  })
+}
+
+// ===========================
+// 관리자용 리뷰 목록 로드
+// ===========================
+function loadAllReviews(){
+  const box = document.getElementById('reviewListBox');
+  box.innerHTML = "불러오는 중...";
+
+  db.ref('reviews').once('value', snap=>{
+    if(!snap.exists()){
+      box.innerHTML = "리뷰 없음";
+      return;
+    }
+
+    let html = "";
+    snap.forEach(item=>{
+      const val = item.val();
+      html += `
+      <div style="padding:10px; border-bottom:1px solid #444;">
+        <strong>작성자:</strong> ${val.email}<br>
+        <strong>내용:</strong> ${val.content}<br>
+        <button onclick="deleteReview('${item.key}')" style="margin-top:6px; padding:4px 8px; background:#ff4444; color:#fff; border:none; border-radius:6px;">삭제</button>
+      </div>`;
+    });
+    box.innerHTML = html;
+  });
+}
+
+function deleteReview(key){
+  if(!confirm("정말 삭제하시겠습니까?")) return;
+  db.ref('reviews/'+key).remove().then(()=>{
+    loadAllReviews();
+  });
+}
   // ==== 검색 & API & 결과 ====
   const inputNo=document.getElementById('elevatorNo');
   const inputAddr=document.getElementById('buldAddress');
