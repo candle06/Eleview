@@ -312,6 +312,49 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <div id="favList"></div>
   </div>
 </div>
+<!-- 🔧 관리자 통합 모달 -->
+<div id="adminModal" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+  justify-content:center; align-items:center; z-index:99999;
+">
+  <div style="
+    background:rgba(25,25,35,0.95); padding:20px;
+    border-radius:16px; width:92%; max-width:420px;
+    color:white; display:flex; flex-direction:column; gap:14px;
+  ">
+  
+    <h3 style="margin:0; text-align:center; font-size:20px;">🔧 관리자 메뉴</h3>
+
+    <!-- 📢 공지 등록 -->
+    <div style="padding:12px; border-radius:10px; background:rgba(255,215,0,0.1); border:1px solid #ffd700;">
+      <h4 style="margin-top:0; color:#ffd700;">📢 공지 등록</h4>
+      <textarea id="adminNoticeInput" placeholder="공지 내용을 입력하세요" style="
+        width:95%; height:80px; padding:8px; border-radius:8px;
+        background:rgba(255,255,255,0.06); border:1px solid #ffd70055;
+        color:white; resize:none;
+      "></textarea>
+      <button id="saveNoticeBtn" style="
+        margin-top:10px; padding:10px; width:100%; border-radius:10px;
+        border:none; background:#ffd700; color:black; font-weight:700;
+      ">등록하기</button>
+    </div>
+
+    <!-- 📝 리뷰 관리 -->
+    <div style="padding:12px; border-radius:10px; background:rgba(255,100,100,0.1); border:1px solid #ff4444;">
+      <h4 style="margin-top:0; color:#ff6b6b;">📝 리뷰 관리</h4>
+      <button id="openReviewList" style="
+        width:100%; padding:10px; background:#ff4444;
+        border:none; border-radius:10px; color:white; font-weight:700;
+      ">리뷰 목록 열기</button>
+    </div>
+
+<button id="closeAdminModal" style="
+      width:100%; padding:10px; border-radius:10px;
+      border:1px solid #888; background:#333; color:white;
+    ">닫기</button>
+  </div>
+</div>
 
 <!-- 📢 공지 모달 -->
 <div id="noticeModal" style="
@@ -672,37 +715,23 @@ db.ref("notice/message").on("value", snap=>{
   }
 });
 
-// ================================
-// 📢 관리자: 공지 등록 버튼 추가
-// ================================
+// 🔧 관리자 전용 메뉴 버튼
 if (user && user.email === ADMIN_EMAIL) {
-  const noticeBtn = document.createElement('button');
-  noticeBtn.textContent = "📢 공지 등록";
-  noticeBtn.style.cssText =
-    "padding:6px 0; border-radius:8px; border:2px solid #ffd700; color:#ffd700; background:none; font-weight:600; width:100%;";
+  const adminBtn = document.createElement('button');
+  adminBtn.id = "adminBtn";
+  adminBtn.textContent = "🔧 관리자 메뉴";
+  adminBtn.style.cssText =
+    "padding:6px 0; font-weight:600; border-radius:8px;" +
+    "border:2px solid #ff4444; color:#ff4444;" +
+    "background:none; width:100%;";
 
-  noticeBtn.onclick = async ()=>{
-    const msg = prompt("공지 내용을 입력하세요:");
-    if(msg && msg.trim()){
-      await db.ref("notice/message").set(msg.trim());
-      alert("공지 등록 완료!");
-    }
+  adminBtn.onclick = () => {
+    document.getElementById('adminModal').style.display = 'flex';
   };
 
-  menuPanel.appendChild(noticeBtn);
+  menuPanel.appendChild(adminBtn);
 }
-    // ⭐ 관리자 전용 메뉴
-    if(user.email === ADMIN_EMAIL){
-      const adminBtn = document.createElement('button');
-      adminBtn.id = "adminBtn";
-      adminBtn.textContent = "🛠 리뷰 관리";
-      adminBtn.style.cssText = "padding:6px 0; font-weight:600; border-radius:8px; border:2px solid #ff4444; color:#ff4444; background:none; width:100%;";
-      adminBtn.onclick = ()=>{
-        document.getElementById('reviewListModal').style.display='flex';
-        loadAllReviews();
-      };
-      menuPanel.appendChild(adminBtn);
-    }
+
   }
 });
 
@@ -813,6 +842,7 @@ function loadAllReviews() {
   const API_HISTORY='https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrInspctInqireM';
 
   btn.addEventListener('click', async ()=>{
+
     const query=inputNo.value.trim();
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
@@ -1359,6 +1389,48 @@ function updateCardStars() {
 // 모달 바깥 클릭 시 닫기
 window.addEventListener('click', (e) => {
   if(e.target === donateModal) donateModal.style.display = 'none';
+});
+
+// 🔧 관리자 모달 요소
+const adminModal = document.getElementById("adminModal");
+const closeAdminModal = document.getElementById("closeAdminModal");
+const saveNoticeBtn = document.getElementById("saveNoticeBtn");
+const adminNoticeInput = document.getElementById("adminNoticeInput");
+const openReviewList = document.getElementById("openReviewList");
+
+// 모달 닫기
+closeAdminModal.addEventListener("click", () => {
+  adminModal.style.display = "none";
+});
+
+// 📢 공지 등록 처리
+saveNoticeBtn.addEventListener("click", async () => {
+  const msg = adminNoticeInput.value.trim();
+  if (!msg) return alert("공지 내용을 입력하세요!");
+
+  await db.ref("notice/message").set(msg);
+  alert("공지 등록 완료!");
+  adminModal.style.display = "none";
+});
+
+// 📝 리뷰 목록 열기
+openReviewList.addEventListener("click", () => {
+  adminModal.style.display = "none";
+  document.getElementById("reviewListModal").style.display = "flex";
+  loadAllReviews();
+});
+
+// 바깥 클릭 시 닫기
+window.addEventListener("click", (e) => {
+  if (e.target === adminModal) adminModal.style.display = "none";
+});
+
+
+// 바깥 클릭 닫기
+window.addEventListener("click", (e)=>{
+  if(e.target === searchLogModal){
+    searchLogModal.style.display = "none";
+  }
 });
 
 
