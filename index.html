@@ -741,7 +741,6 @@ window.addEventListener("click", (e) => {
 });
 
 // ========= 🔍 검색 기록 로딩 =========
-
 function loadSearchLogs() {
   searchLogList.innerHTML = "불러오는 중...";
 
@@ -761,26 +760,35 @@ function loadSearchLogs() {
 
     searchLogList.innerHTML = arr.map(v => {
 
-      const time = new Date(v.timestamp);
-      const dateString =
-        `${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-${String(time.getDate()).padStart(2,'0')} ` +
-        `${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
+  const time = new Date(v.timestamp);
+  const dateString =
+    `${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-${String(time.getDate()).padStart(2,'0')} ` +
+    `${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
 
-      return `
-        <div style="
-          padding:12px; background:rgba(255,255,255,0.06);
-          border-radius:10px; border:1px solid rgba(255,255,255,0.15);
-        ">
-          <div><strong>검색어:</strong> ${v.query || '없음'}</div>
-          <div><strong>검색 종류:</strong> ${v.type}</div>
-          <div><strong>주소 관련 값:</strong> ${v.address || '없음'}</div>
-          <div><strong>시간:</strong> ${dateString}</div>
-        </div>
-      `;
-    }).join('');
+  return `
+    <div style="
+      padding:12px; background:rgba(255,255,255,0.06);
+      border-radius:10px; border:1px solid rgba(255,255,255,0.15);
+    ">
+      <p><strong>검색어:</strong> ${v.query}</p>
+      <p><strong>검색 종류:</strong> ${v.type}</p>
+      <p><strong>검색한 사용자:</strong> ${v.user || "비로그인"}</p>
+      <p><strong>시간:</strong> ${dateString}</p>
+    </div>
+  `;
+}).join('');
+
   });
 }
-
+function formatDateTime(ts) {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day} ${hh}:${mm}`;
+}
 
   // ==== 검색 & API & 결과 ====
   const inputNo=document.getElementById('elevatorNo');
@@ -811,16 +819,24 @@ inputAddr.addEventListener("keydown", function(e) {
   btn.addEventListener('click', async ()=>{
 
     const query=inputNo.value.trim();
-    function saveSearchLog(query, type, address="") {
+
+function saveSearchLog(query, type, address = "") {
+  const user = firebase.auth().currentUser;
+  const userEmail = user ? user.email : "비로그인";
+
   db.ref("searchLogs").push({
     query: query || "",
     type: type || "",
-    address: address || "",
+    addressValue: address || "없음",
+    user: userEmail,   // 🔥 이메일 저장!
     timestamp: Date.now()
   });
-}if (query) {
+}
+
+if (query) {
   saveSearchLog(query, "elevatorNo", inputAddr.value.trim());
 }
+
 if (inputAddr.value.trim()) {
   saveSearchLog(inputAddr.value.trim(), "address", query);
 }
