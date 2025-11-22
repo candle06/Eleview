@@ -795,6 +795,18 @@ function loadSearchLogs() {
   const API_OPERATION='https://apis.data.go.kr/B553664/ElevatorOperationService/getOperationInfoListV1';
   const API_VIEW='https://apis.data.go.kr/B553664/ElevatorInformationService/getElevatorViewM';
   const API_HISTORY='https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrInspctInqireM';
+// ========== 엔터 키로 검색 ==========
+inputNo.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    btn.click();
+  }
+});
+
+inputAddr.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    btn.click();
+  }
+});
 
   btn.addEventListener('click', async ()=>{
 
