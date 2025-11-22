@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleview V1.6</title>
+<title>Eleview V1.6.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { min-height:100%; margin:0; padding:0; font-family:"Inter","Noto Sans KR",sans-serif; color:#fff; overflow-x:hidden; } 
@@ -32,8 +32,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 .card .info strong {color: #9e9e9e; }
 .card .btn {margin-top: 12px; background: linear-gradient(180deg,#d67cff 0%,#9b5cff 100%); border-radius: 14px; padding: 10px; font-weight: 600; box-shadow: 0 4px 12px rgba(214,124,255,0.5); transition: transform 0.1s;}
 .card .btn:hover {transform: scale(1.05);}
-.card .view-history-btn {position: absolute; top: 12px; right: 20px; background: linear-gradient(180deg,#d67cff 0%,#9b5cff 100%); border: none; color: #fff; border-radius: 12px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(214,124,255,0.5); transition: transform 0.1s;}
 .card .view-history-btn:hover {transform: scale(1.05);}
+.card-header {text-align: center; margin-bottom: 12px;}
+.card-header h3 {font-size: 18px; margin: 0; font-weight: 700;}
+.card-header .sub {opacity: 0.7; font-size: 13px; margin-top: 4px;}
 #customContent .btn {background: linear-gradient(135deg, #6e22ff 0%, #9b5cff 100%); color: #fff; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(155,92,255,0.5); transition: transform 0.15s ease, box-shadow 0.15s ease; width: 100%; text-align: center;}
 #customContent .btn:hover {transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(155,92,255,0.6);}
 #customContent .btn:active {transform: translateY(1px); box-shadow: 0 3px 10px rgba(155,92,255,0.4); background: linear-gradient(135deg, #5c00e0 0%, #8a3fff 100%);}
@@ -59,15 +61,82 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 #loginDoBtn:hover,#signupDoBtn:hover {transform: translateY(-2px); box-shadow: 0 6px 18px rgba(77,163,255,0.4);}
 #closeLoginModal {background: rgba(255,255,255,0.1); border: 1px solid rgba(200,200,200,0.2);}
 #closeLoginModal:hover {background: rgba(255,255,255,0.2);}
+#intro {position: fixed; inset: 0; background: linear-gradient(135deg, #a78bfa, #8b5cf6, #6d28d9); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 25px; z-index: 999999; overflow: hidden; animation: introFadeOut 1s ease forwards; animation-delay: 4.5s;}
+.light-sweep {position: absolute; top: -50%; left: -150%; width: 300%; height: 200%; background: linear-gradient( 120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.65) 50%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0) 100% ); transform: rotate(20deg); animation: sweep 2.3s ease-out forwards; animation-delay: 0.4s;}
+@keyframes sweep {0% { left: -150%; } 100% { left: 150%; }}
+.intro-logo {font-size: 58px; color: white; font-weight: 900; letter-spacing: 2px; position: relative; z-index: 10;}
+.intro-logo .purple { color: #e0c3ff;}
+.intro-text {color: rgba(255,255,255,0.9); font-size: 15px; z-index: 10;}
+.loading-bar {width: 200px; height: 9px;border-radius: 10px; background: rgba(255,255,255,0.35); overflow: hidden; z-index: 10;}
+.loading-fill {width: 0%; height: 100%; background: linear-gradient(90deg, #f1e1ff, #c7a8ff, #9c6bff); border-radius: inherit; animation: loadingAnim 3.5s ease forwards; animation-delay: 0.6s;}
+@keyframes loadingAnim {0% { width: 0%; } 30% { width: 30%; } 55% { width: 65%; } 80% { width: 85%; } 100% { width: 100%; }}
+@keyframes introFadeOut {0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; }}
+.material-symbols-rounded {font-size: 20px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,0.15); backdrop-filter: blur(6px);}
+.simple-info.clean {
+  margin-top: 12px;
+  text-align: left;   /* 전체 왼쪽 정렬 */
+}
+
+.simple-info.clean p {
+  font-size: 14px;
+  margin: 3px 0;
+  line-height: 1.3;
+  display: block;     /* ← flex 제거 (왼쪽 정렬 위해) */
+  color: #e6e6e6;
+  text-align: left;
+}
+
+.simple-info.clean strong {
+  font-weight: 700;
+  color: #fff;
+}
+
+.section-title {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c9b6ff;
+  border-left: 3px solid #bda2ff;
+  padding-left: 6px;
+  text-align: left;  /* 제목도 왼쪽 */
+}
+
+/* 버튼 컨테이너 */
+.btn-row-simple {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  text-align: left;
+}
+
+
 </style>
 </head>
 <body style="background:#000000;">
 
 <canvas id="particle-wrap"></canvas>
 
+<div id="intro">
+  <div class="light-sweep"></div>
+
+  <div class="intro-logo">
+    ELE<span class="purple">VIE</span>W
+  </div>
+
+  <p class="intro-text">웹 실행중...</p>
+
+  <div class="loading-bar">
+    <div class="loading-fill"></div>
+  </div>
+</div>
+
+
+
 <div class="app">
 <header style="display:flex; justify-content:center; align-items:center; position:relative; margin-top:5vh;">
-  <div class="logo">Eleview V1.6</div>
+  <div class="logo">Eleview V1.6.5</div>
 
   <!-- 햄버거 버튼 -->
   <button id="menuBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -431,7 +500,7 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
 </div>
 
 <div class="footer" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-  @2025 Eleview V1.6 - 제작자 : 마녀
+  @2025 Eleview V1.6.5 - 제작자 : 마녀
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -469,6 +538,12 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
   customBtnMenu.addEventListener('click', ()=>{ document.getElementById('customModal').style.display='flex'; menuPanel.style.display='none'; });
   window.addEventListener('click', (e)=>{ if(!menuPanel.contains(e.target) && e.target!==menuBtn) menuPanel.style.display='none'; });
 const ADMIN_EMAIL = "candle0627@gmail.com"; // 🔧 원하는 관리자 이메일로 변경
+
+setTimeout(() => {
+  const intro = document.getElementById("intro");
+  if (intro) intro.style.display = "none";
+}, 5000);
+
 
 // 로그인 감지
 firebase.auth().onAuthStateChanged((user)=>{
@@ -791,32 +866,68 @@ if (inputAddr.value.trim()) {
         const liveLoadDisplay=liveLoad?`${liveLoad} kg`:'N/A';
         const div=document.createElement('div');
         div.className='card';
-        div.innerHTML=`
-          <h3>${get("buldNm")||v("buldNm")}</h3>
-          <div class='meta'>${elevatorNo} • ${get("elvtrDiv")}</div>
-          <div class='info'>
-          <strong>모델명:</strong> ${get("elvtrModel")}<br>
-          <strong>제조업체/보수업체:</strong> ${get("mnfcturCpnyNm")} / ${get("companyNm")}<br>
-          <strong>주소1/2:</strong> ${get("address1")} / ${get("address2")}<br>
-          <strong>시도/시군구:</strong> ${get("sido")} / ${get("sigungu")}<br>
-          <strong>승강기호기:</strong> ${get("elvtrAsignNo")}<br>
-          <strong>승강기형식/세부형식:</strong> ${get("elvtrForm")} / ${get("elvtrDetailForm")}<br>
-          <strong>승강기종류:</strong> ${kind}<br>
-          <strong>설치일자:</strong> 최초: ${get("frstInstallationDe")} / 최근: ${get("installationDe")}<br>
-          <strong>설치장소:</strong> ${get("installationPlace")}<br>
-          <strong>운행층수:</strong> ${shuttleFloor}층<br>
-          <strong>정격속도:</strong> ${speedMMin} m/min<br>
-          <strong>적재하중:</strong> ${liveLoadDisplay}<br>
-          <strong>최대정원:</strong> ${get("ratedCap")}<br>
-          <strong>유효기간:</strong> ${get("applcBeDt")} ~ ${get("applcEnDt")}<br>
-          <strong>관리기관:</strong> ${get("inspctInsttNm")}<br>
-          <strong>승강기상태:</strong> ${get("elvtrSttsNm")}<br>
-          <button class="btn fav-btn" data-elevator='${elevatorNo}' style="position:absolute; bottom:12px; right:12px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">☆</button>
-          <button class="btn view-history-btn" data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
-        const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent||'';
-        return { inspctDt:hget("inspctDt"), inspctInsttNm:hget("inspctInsttNm"), inspctKind:hget("inspctKind"), psexamYn:hget("psexamYn") };
-          })))}'>📌 검사이력 보기</button>
-          </div>`;
+       div.innerHTML = `
+  <div class="card-header">
+    <h3>${get("buldNm") || v("buldNm")}</h3>
+    <div class="sub">${elevatorNo} • ${get("elvtrDiv")}</div>
+  </div>
+
+  <div class="simple-info clean">
+
+    <!-- 기본 정보 -->
+    <div class="section-title">기본 정보</div>
+    <p>모델명 <strong>${get("elvtrModel")}</strong></p>
+    <p>승강기 종류 <strong>${kind}</strong></p>
+    <p>형식/세부형식 <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
+    <p>승강기 호기 <strong>${get("elvtrAsignNo")}</strong></p>
+    <p>승강기 상태 <strong>${get("elvtrSttsNm")}</strong></p>
+
+    <!-- 설치 정보 -->
+    <div class="section-title">설치 정보</div>
+    <p>설치장소 <strong>${get("installationPlace")}</strong></p>
+    <p>주소 <strong>${get("address1")} / ${get("address2")}</strong></p>
+    <p>시도/시군구 <strong>${get("sido")} / ${get("sigungu")}</strong></p>
+
+    <!-- 성능 정보 -->
+    <div class="section-title">성능 정보</div>
+    <p>정격속도 <strong>${speedMMin} m/min</strong></p>
+    <p>운행층수 <strong>${shuttleFloor}층</strong></p>
+    <p>적재하중 <strong>${liveLoadDisplay}</strong></p>
+    <p>최대정원 <strong>${get("ratedCap")}</strong></p>
+
+    <!-- 날짜 정보 -->
+    <div class="section-title">날짜 정보</div>
+    <p>설치일자 <strong>최초 ${get("frstInstallationDe")} / 최근 ${get("installationDe")}</strong></p>
+    <p>유효기간 <strong>${get("applcBeDt")} ~ ${get("applcEnDt")}</strong></p>
+
+    <!-- 제조 / 관리 -->
+    <div class="section-title">제조 · 관리</div>
+    <p>제조업체 <strong>${get("mnfcturCpnyNm")}</strong></p>
+    <p>보수업체 <strong>${get("companyNm")}</strong></p>
+    <p>관리기관 <strong>${get("inspctInsttNm")}</strong></p>
+
+    <!-- 버튼 -->
+    <div class="btn-row-simple">
+      <button class="btn bottom-btn fav-btn" data-elevator='${elevatorNo}'>⭐ 즐겨찾기</button>
+      <button class="btn bottom-btn view-history-btn"
+        data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
+          const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent || "";
+          return {
+            inspctDt:hget("inspctDt"),
+            inspctInsttNm:hget("inspctInsttNm"),
+            inspctKind:hget("inspctKind"),
+            psexamYn:hget("psexamYn")
+          };
+        })))}'>
+        📌 검사이력 보기
+      </button>
+    </div>
+
+  </div>
+`;
+
+
+
         list.appendChild(div);
         // ✅ 카드 생성 후 바로 즐겨찾기 상태 적용
         const favBtn = div.querySelector('.fav-btn');
