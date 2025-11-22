@@ -34,211 +34,31 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 .card .btn:hover {transform: scale(1.05);}
 .card .view-history-btn {position: absolute; top: 12px; right: 20px; background: linear-gradient(180deg,#d67cff 0%,#9b5cff 100%); border: none; color: #fff; border-radius: 12px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(214,124,255,0.5); transition: transform 0.1s;}
 .card .view-history-btn:hover {transform: scale(1.05);}
-/* 커스텀 모달 버튼 */
-#customContent .btn {
-  background: linear-gradient(135deg, #6e22ff 0%, #9b5cff 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(155,92,255,0.5);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  width: 100%;
-  text-align: center;
-}
-
-/* 호버 효과 */
-#customContent .btn:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 20px rgba(155,92,255,0.6);
-}
-
-/* 클릭 효과 */
-#customContent .btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 3px 10px rgba(155,92,255,0.4);
-  background: linear-gradient(135deg, #5c00e0 0%, #8a3fff 100%);
-}
-
-/* 모달 내부 작은 버튼 (예: 색상 선택, 파일 첨부 등) */
+#customContent .btn {background: linear-gradient(135deg, #6e22ff 0%, #9b5cff 100%); color: #fff; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(155,92,255,0.5); transition: transform 0.15s ease, box-shadow 0.15s ease; width: 100%; text-align: center;}
+#customContent .btn:hover {transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(155,92,255,0.6);}
+#customContent .btn:active {transform: translateY(1px); box-shadow: 0 3px 10px rgba(155,92,255,0.4); background: linear-gradient(135deg, #5c00e0 0%, #8a3fff 100%);}
 #customContent input[type="file"], 
-#customContent input[type="color"] {
-  border-radius: 10px;
-  padding: 6px;
-  border: 1px solid rgba(155,92,255,0.5);
-  background: rgba(50,20,80,0.4);
-  color: #fff;
-  font-size: 13px;
-  outline: none;
-}
-
-#customContent input[type="file"]::file-selector-button {
-  background: linear-gradient(135deg, #9b5cff 0%, #6e22ff 100%);
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-#customContent input[type="file"]::file-selector-button:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(155,92,255,0.5);
-}
-#favModal > div {
-  background: linear-gradient(135deg, #332200, #554400);
-  box-shadow: 0 10px 30px rgba(255,215,0,0.6), 0 0 12px rgba(255,215,0,0.25) inset;
-}
-.fav-item {
-  padding: 12px 16px;
-  background: rgba(255,215,0,0.1);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(255,215,0,0.25);
-  color: #fff8e1;
-  font-weight: 500;
-}
-.fav-item:hover {
-  transform: scale(1.05);
-  background: rgba(255,215,0,0.25);
-  box-shadow: 0 6px 18px rgba(255,215,0,0.5);
-}
-
-#donateModal > div {
-  background: linear-gradient(135deg, #2e0000, #44001a);
-  box-shadow: 0 10px 28px rgba(255,107,107,0.5), 0 0 12px rgba(255,107,107,0.25) inset;
-}
-#donateModal p {
-  margin: 6px 0;
-  line-height: 1.4;
-  color: #ffdddd;
-}
-#donateModal strong {
-  color: #ffd700;
-  text-shadow: 0 0 6px #ffd700aa, 0 0 12px #ffb70066;
-}
-/* ===========================
-   로그인 버튼 (햄버거 메뉴)
-=========================== */
-#loginBtn {
-  border: 2px solid #4da3ff;
-  color: #4da3ff;
-  background: rgba(77, 163, 255, 0.08);
-  padding: 8px 0;
-  width: 100%;
-  border-radius: 10px;
-  font-weight: 600;
-  backdrop-filter: blur(6px);
-  transition: 0.25s;
-  cursor: pointer;
-}
-
-#loginBtn:hover {
-  background: #4da3ff;
-  color: white;
-  box-shadow: 0 0 12px rgba(77, 163, 255, 0.5);
-}
-
-/* ===========================
-   로그인 모달 전체 배경
-=========================== */
-#loginModal {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-
-/* ===========================
-   로그인 모달 박스
-=========================== */
-#loginModal .login-box {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(77, 163, 255, 0.45);
-  border-radius: 14px;
-  width: 90%;
-  max-width: 350px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  animation: fadeIn 0.25s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-/* ===========================
-   입력창
-=========================== */
-#loginEmail,
-#loginPw {
-  width: 95%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(77,163,255,0.4);
-  background: rgba(255,255,255,0.1);
-  color: white;
-  outline: none;
-  font-size: 15px;
-  transition: 0.2s;
-}
-
-#loginEmail:focus,
-#loginPw:focus {
-  border-color: #4da3ff;
-  box-shadow: 0 0 6px rgba(77,163,255,0.6);
-}
-
-/* ===========================
-   로그인/회원가입 버튼
-=========================== */
-#loginDoBtn,
-#signupDoBtn,
-#closeLoginModal {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-  color: white;
-}
-
-#loginDoBtn,
-#signupDoBtn {
-  background: linear-gradient(135deg, #4da3ff, #1b76d1);
-  box-shadow: 0 4px 12px rgba(77,163,255,0.3);
-}
-
-#loginDoBtn:hover,
-#signupDoBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(77,163,255,0.4);
-}
-
-#closeLoginModal {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(200,200,200,0.2);
-}
-
-#closeLoginModal:hover {
-  background: rgba(255,255,255,0.2);
-}
+#customContent input[type="color"] {border-radius: 10px; padding: 6px; border: 1px solid rgba(155,92,255,0.5); background: rgba(50,20,80,0.4); color: #fff; font-size: 13px; outline: none;}
+#customContent input[type="file"]::file-selector-button {background: linear-gradient(135deg, #9b5cff 0%, #6e22ff 100%); color: #fff; border: none; padding: 6px 10px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13px; transition: transform 0.15s ease, box-shadow 0.15s ease;}
+#customContent input[type="file"]::file-selector-button:hover {transform: translateY(-1px) scale(1.02); box-shadow: 0 4px 12px rgba(155,92,255,0.5);}
+#favModal > div {background: linear-gradient(135deg, #332200, #554400); box-shadow: 0 10px 30px rgba(255,215,0,0.6), 0 0 12px rgba(255,215,0,0.25) inset;}
+.fav-item {padding: 12px 16px; background: rgba(255,215,0,0.1); border-radius: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255,215,0,0.25); color: #fff8e1; font-weight: 500;}
+.fav-item:hover {transform: scale(1.05); background: rgba(255,215,0,0.25); box-shadow: 0 6px 18px rgba(255,215,0,0.5);}
+#donateModal > div {background: linear-gradient(135deg, #2e0000, #44001a); box-shadow: 0 10px 28px rgba(255,107,107,0.5), 0 0 12px rgba(255,107,107,0.25) inset;}
+#donateModal p {margin: 6px 0; line-height: 1.4; color: #ffdddd;}
+#donateModal strong {color: #ffd700; text-shadow: 0 0 6px #ffd700aa, 0 0 12px #ffb70066;}
+#loginBtn {border: 2px solid #4da3ff; color: #4da3ff; background: rgba(77, 163, 255, 0.08); padding: 8px 0; width: 100%; border-radius: 10px; font-weight: 600; backdrop-filter: blur(6px); transition: 0.25s; cursor: pointer;}
+#loginBtn:hover {background: #4da3ff; color: white; box-shadow: 0 0 12px rgba(77, 163, 255, 0.5);}
+#loginModal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content:center; align-items:center; z-index:999;}
+#loginModal .login-box {background: rgba(255,255,255,0.08); border: 1px solid rgba(77, 163, 255, 0.45); border-radius: 14px; width: 90%; max-width: 350px; padding: 22px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(20px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: fadeIn 0.25s ease;}
+@keyframes fadeIn {from { opacity:0; transform:translateY(12px); } to   { opacity:1; transform:translateY(0); }}
+#loginEmail, #loginPw {width: 95%; padding: 12px; border-radius: 8px; border: 1px solid rgba(77,163,255,0.4); background: rgba(255,255,255,0.1); color: white; outline: none; font-size: 15px; transition: 0.2s;}
+#loginEmail:focus, #loginPw:focus {border-color: #4da3ff; box-shadow: 0 0 6px rgba(77,163,255,0.6);}
+#loginDoBtn, #signupDoBtn, #closeLoginModal {padding: 10px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; color: white;}
+#loginDoBtn, #signupDoBtn {background: linear-gradient(135deg, #4da3ff, #1b76d1); box-shadow: 0 4px 12px rgba(77,163,255,0.3);}
+#loginDoBtn:hover,#signupDoBtn:hover {transform: translateY(-2px); box-shadow: 0 6px 18px rgba(77,163,255,0.4);}
+#closeLoginModal {background: rgba(255,255,255,0.1); border: 1px solid rgba(200,200,200,0.2);}
+#closeLoginModal:hover {background: rgba(255,255,255,0.2);}
 </style>
 </head>
 <body style="background:#000000;">
@@ -287,7 +107,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
    style="display:block; width:100%; padding:6px 0; font-weight:600; border-radius:8px; text-align:center; cursor:pointer; border:2px solid #ff6b6b; color:#ff6b6b; background:none; margin-bottom:8px;">
    💖 후원
 </button>
-<!-- 로그인한 일반 유저용: 리뷰 작성 버튼 -->
+
 <button id="reviewBtn"
    style="display:none; width:100%; padding:6px 0; font-weight:600;
    border-radius:8px; text-align:center; cursor:pointer;
@@ -295,7 +115,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
    ✏️ 리뷰 작성
 </button>
 
-<!-- 관리자용: 리뷰 관리 버튼 -->
 <button id="adminBtn"
    style="display:none; width:100%; padding:6px 0; font-weight:600;
    border-radius:8px; text-align:center; cursor:pointer;
@@ -312,7 +131,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <div id="favList"></div>
   </div>
 </div>
-<!-- 🔧 관리자 통합 모달 -->
+
 <div id="adminModal" style="
   display:none; position:fixed; inset:0;
   background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
@@ -326,7 +145,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   
     <h3 style="margin:0; text-align:center; font-size:20px;">🔧 관리자 메뉴</h3>
 
-    <!-- 📢 공지 등록 -->
     <div style="padding:12px; border-radius:10px; background:rgba(255,215,0,0.1); border:1px solid #ffd700;">
       <h4 style="margin-top:0; color:#ffd700;">📢 공지 등록</h4>
       <textarea id="adminNoticeInput" placeholder="공지 내용을 입력하세요" style="
@@ -340,13 +158,18 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
       ">등록하기</button>
     </div>
 
-    <!-- 📝 리뷰 관리 -->
     <div style="padding:12px; border-radius:10px; background:rgba(255,100,100,0.1); border:1px solid #ff4444;">
       <h4 style="margin-top:0; color:#ff6b6b;">📝 리뷰 관리</h4>
       <button id="openReviewList" style="
         width:100%; padding:10px; background:#ff4444;
         border:none; border-radius:10px; color:white; font-weight:700;
       ">리뷰 목록 열기</button>
+    </div>
+    <div style="padding:12px; border-radius:10px; background:rgba(100,150,255,0.1); border:1px solid #4da3ff;">
+      <h4 style="margin-top:0; color:#4da3ff;">🔍 검색 기록 조회</h4>
+      <button id="openSearchLogBtn" style="
+        width:100%; padding:10px; background:#4da3ff;
+       border:none; border-radius:10px; color:white; font-weight:700;">검색 기록 열기</button>
     </div>
 
 <button id="closeAdminModal" style="
@@ -356,7 +179,26 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   </div>
 </div>
 
-<!-- 📢 공지 모달 -->
+<div id="searchLogModal" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+  justify-content:center; align-items:center; z-index:99999;">
+  
+  <div style="
+    background:#111; padding:20px; border-radius:12px;
+    max-width:420px; width:90%; max-height:80vh; overflow-y:auto;
+    color:white; display:flex; flex-direction:column; gap:10px;">
+    
+    <button id="closeSearchLogBtn" class="btn" style="align-self:flex-end;">닫기</button>
+    <h3 style="margin:0; text-align:center;">🔍 전체 검색 기록</h3>
+
+    <div id="searchLogList" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
+      불러오는 중...
+    </div>
+
+  </div>
+</div>
+
 <div id="noticeModal" style="
   display:none; position:fixed; inset:0;
   background:rgba(0,0,0,0.65); backdrop-filter:blur(6px);
@@ -450,7 +292,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
       ">
     </textarea>
 
-    <!-- 저장 버튼 -->
     <button onclick="saveReview()"
       style="
         width:100%; padding:10px 0;
@@ -466,7 +307,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
       저장하기
     </button>
 
-    <!-- 닫기 버튼 -->
     <button onclick="document.getElementById('reviewModal').style.display='none'"
       style="
         width:100%; padding:10px 0;
@@ -520,7 +360,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
       불러오는 중...
     </div>
 
-    <!-- 닫기 버튼 -->
     <button onclick="document.getElementById('reviewListModal').style.display='none'"
       style="
         width:100%; padding:10px 0;
@@ -548,7 +387,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     <label>검색 버튼 텍스트: <input type="text" id="searchText" value="검색"></label>
     <label>검색 버튼 색상: <input type="color" id="searchColor" value="#9b5cff"></label>
     <button class="btn" id="applyBtn">적용</button>
-    <!-- 글씨 색상 선택 -->
 <label>글씨 색상 선택</label>
 <input type="color" id="textColorPicker" value="#000000" />
 <button id="applyTextColorBtn">적용</button>
@@ -596,12 +434,10 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
   @2025 Eleview V1.6 - 제작자 : 마녀
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
-  // ==== Firebase 동접자 ====
   const firebaseConfig = {
     apiKey: "AIzaSyApdyHj-1DiEsOG7XZ6zmDLIEwtLJZ70Js",
     authDomain: "elev-5374e.firebaseapp.com",
@@ -823,10 +659,73 @@ function loadAllReviews() {
         </div>
       `;
     });
-
     box.innerHTML = html;
   });
 }
+const openSearchLogBtn = document.getElementById("openSearchLogBtn");
+const searchLogModal = document.getElementById("searchLogModal");
+const closeSearchLogBtn = document.getElementById("closeSearchLogBtn");
+const searchLogList = document.getElementById("searchLogList");
+
+// 모달 열기
+openSearchLogBtn.addEventListener("click", () => {
+  adminModal.style.display = "none";
+  searchLogModal.style.display = "flex";
+  loadSearchLogs();
+});
+
+// 모달 닫기
+closeSearchLogBtn.addEventListener("click", () => {
+  searchLogModal.style.display = "none";
+});
+
+// 모달 바깥 클릭 닫기
+window.addEventListener("click", (e) => {
+  if (e.target === searchLogModal) searchLogModal.style.display = "none";
+});
+
+// ========= 🔍 검색 기록 로딩 =========
+
+function loadSearchLogs() {
+  searchLogList.innerHTML = "불러오는 중...";
+
+  db.ref("searchLogs").once("value", snap => {
+    if (!snap.exists()) {
+      searchLogList.innerHTML = "<p>검색 기록 없음</p>";
+      return;
+    }
+
+    let arr = [];
+    snap.forEach(item => {
+      arr.push({ key: item.key, ...item.val() });
+    });
+
+    // 최신순 정렬
+    arr.sort((a, b) => b.timestamp - a.timestamp);
+
+    searchLogList.innerHTML = arr.map(v => {
+
+      const time = new Date(v.timestamp);
+      const dateString =
+        `${time.getFullYear()}-${String(time.getMonth()+1).padStart(2,'0')}-${String(time.getDate()).padStart(2,'0')} ` +
+        `${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
+
+      return `
+        <div style="
+          padding:12px; background:rgba(255,255,255,0.06);
+          border-radius:10px; border:1px solid rgba(255,255,255,0.15);
+        ">
+          <div><strong>검색어:</strong> ${v.query || '없음'}</div>
+          <div><strong>검색 종류:</strong> ${v.type}</div>
+          <div><strong>주소 관련 값:</strong> ${v.address || '없음'}</div>
+          <div><strong>시간:</strong> ${dateString}</div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+
   // ==== 검색 & API & 결과 ====
   const inputNo=document.getElementById('elevatorNo');
   const inputAddr=document.getElementById('buldAddress');
@@ -844,6 +743,20 @@ function loadAllReviews() {
   btn.addEventListener('click', async ()=>{
 
     const query=inputNo.value.trim();
+    function saveSearchLog(query, type, address="") {
+  db.ref("searchLogs").push({
+    query: query || "",
+    type: type || "",
+    address: address || "",
+    timestamp: Date.now()
+  });
+}if (query) {
+  saveSearchLog(query, "elevatorNo", inputAddr.value.trim());
+}
+if (inputAddr.value.trim()) {
+  saveSearchLog(inputAddr.value.trim(), "address", query);
+}
+
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
     if(query) params.append('elevator_no', query);
