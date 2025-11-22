@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Eleview 관리자 페이지</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: 'Inter', sans-serif; background:#0d0d0d; color:white; padding:20px; }
+  h1 { text-align:center; margin-bottom:20px; }
+  .card { background:#1a1a1a; padding:20px; border-radius:12px; margin-bottom:20px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { padding:8px; border-bottom:1px solid #333; }
+  th { background:#222; }
+</style>
+</head>
+<body>
+
+<h1>📊 Eleview 관리자 대시보드</h1>
+
+<div id="authCheck" class="card">
+  로그인 상태 확인 중...
+</div>
+
+<div id="adminContent" style="display:none;">
+
+  <div class="card">
+    <h2>오늘 검색된 횟수</h2>
+    <p id="todayCount">0 회</p>
+  </div>
+
+  <div class="card">
+    <h2>최근 검색 50개</h2>
+    <table>
+      <thead>
+        <tr><th>시간</th><th>검색어</th><th>종류</th></tr>
+      </thead>
+      <tbody id="logTable"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>검색 종류 비율</h2>
+    <canvas id="typeChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>가장 많이 검색된 승번 TOP 10</h2>
+    <ul id="topList"></ul>
+  </div>
+
+</div>
+
+<script>
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyApdyHj-1DiEsOG7XZ6zmDLIEwtLJZ70Js",
+  authDomain: "elev-5374e.firebaseapp.com",
+  databaseURL: "https://elev-5374e-default-rtdb.firebaseio.com",
+  projectId: "elev-5374e",
+  storageBucket: "elev-5374e.firebasestorage.app",
+  messagingSenderId: "265381396625",
+  appId: "1:265381396625:web:5a3db379ef4a038ee43f30",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+// ===== 관리자 인증 =====
+const ADMIN_EMAIL = "candle0627@gmail.com";
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    document.getElementById("authCheck").innerHTML = "로그인이 필요합니다.";
+    return;
+  }
+
+  if (user.email !== ADMIN_EMAIL) {
+    document.getElementById("authCheck").innerHTML = "🚫 접근 권한이 없습니다.";
+    return;
+  }
+
+  document.getElementById("authCheck").style.display = "none";
+  document.getElementById("adminContent").style.display = "block";
+
+  loadDashboard();
+});
+
+// ===== 대시보드 로드 =====
+function loadDashboard() {
+  db.ref("searchLogs").limitToLast(500).once("value", snap => {
+    const data = [];
+    snap.forEach(s => data.push(s.val()));
+
+    data.reverse(); // 최신순
+
+    renderTodayCount(data);
+    renderLogTable(data);
+    renderTypeChart(data);
+    renderTopList(data);
+  });
+}
+
+// 오늘 검색된 수
+function renderTodayCount(data) {
+  const today = new Date().toISOString().split("T")[0];
+  const count = data.filter(d => new Date(d.timestamp).toISOString().startsWith(today)).length;
+  document.getElementById("todayCount").textContent = count + " 회";
+}
+
+// 최근 검색 50개 테이블
+function renderLogTable(data) {
+  const tbody = document.getElementById("logTable");
+  const rows = data.slice(0, 50).map(d => `
+    <tr>
+      <td>${new Date(d.timestamp).toLocaleString()}</td>
+      <td>${d.query}</td>
+      <td>${d.type}</td>
+    </tr>
+  `).join("");
+  tbody.innerHTML = rows;
+}
+
+// 검색 종류 비율 차트
+function renderTypeChart(data) {
+  const typeCount = { elevatorNo: 0, address: 0 };
+  data.forEach(d => typeCount[d.type]++);
+
+  new Chart(document.getElementById("typeChart"), {
+    type: "pie",
+    data: {
+      labels: ["승번 검색", "주소 검색"],
+      datasets: [{
+        data: [typeCount.elevatorNo, typeCount.address],
+        backgroundColor: ["#6e22ff", "#d67cff"]
+      }]
+    }
+  });
+}
+
+// 많이 검색된 승번 Top 10
+function renderTopList(data) {
+  const count = {};
+  data.forEach(d => {
+    if (d.type === "elevatorNo")
+      count[d.query] = (count[d.query] || 0) + 1;
+  });
+
+  const sorted = Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  document.getElementById("topList").innerHTML = sorted
+    .map(([num, cnt]) => `<li>${num} — ${cnt}회</li>`)
+    .join("");
+}
+</script>
+
+</body>
+</html>
