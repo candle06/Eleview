@@ -35,7 +35,7 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 .card .view-history-btn:hover {transform: scale(1.05);}
 .card-header {text-align: center; margin-bottom: 12px;}
 .card-header h3 {font-size: 18px; margin: 0; font-weight: 700;}
-.card-header .sub {opacity: 0.7; font-size: 13px; margin-top: 4px;}
+.card-header .sub {color: #ffffff; font-weight: 600;opacity: 0.7; font-size: 13px; margin-top: 4px;}
 #customContent .btn {background: linear-gradient(135deg, #6e22ff 0%, #9b5cff 100%); color: #fff; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(155,92,255,0.5); transition: transform 0.15s ease, box-shadow 0.15s ease; width: 100%; text-align: center;}
 #customContent .btn:hover {transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 20px rgba(155,92,255,0.6);}
 #customContent .btn:active {transform: translateY(1px); box-shadow: 0 3px 10px rgba(155,92,255,0.4); background: linear-gradient(135deg, #5c00e0 0%, #8a3fff 100%);}
@@ -72,46 +72,12 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 @keyframes loadingAnim {0% { width: 0%; } 30% { width: 30%; } 55% { width: 65%; } 80% { width: 85%; } 100% { width: 100%; }}
 @keyframes introFadeOut {0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; }}
 .material-symbols-rounded {font-size: 20px; padding: 4px; border-radius: 8px; background: rgba(255,255,255,0.15); backdrop-filter: blur(6px);}
-.simple-info.clean {
-  margin-top: 12px;
-  text-align: left;   /* 전체 왼쪽 정렬 */
-}
-
-.simple-info.clean p {
-  font-size: 14px;
-  margin: 3px 0;
-  line-height: 1.3;
-  display: block;     /* ← flex 제거 (왼쪽 정렬 위해) */
-  color: #e6e6e6;
-  text-align: left;
-}
-
-.simple-info.clean strong {
-  font-weight: 700;
-  color: #fff;
-}
-
-.section-title {
-  margin-top: 12px;
-  margin-bottom: 4px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #c9b6ff;
-  border-left: 3px solid #bda2ff;
-  padding-left: 6px;
-  text-align: left;  /* 제목도 왼쪽 */
-}
-
-/* 버튼 컨테이너 */
-.btn-row-simple {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-start; /* 왼쪽 정렬 */
-  text-align: left;
-}
-
-
+.simple-info.clean {margin-top: 12px; text-align: left;}
+.simple-info.clean p {font-size: 14px; margin: 3px 0; line-height: 1.3; display: block; color: #e6e6e6; text-align: left;}
+.simple-info.clean strong {font-weight: 700; color: #fff;}
+.section-title {margin-top: 12px; margin-bottom: 4px; font-size: 13px; font-weight: 700; color: #c9b6ff; border-left: 3px solid #bda2ff; padding-left: 6px; text-align: left;}
+.btn-row-simple {margin-top: 15px; display: flex; gap: 10px; justify-content: flex-start; text-align: left;}
+.simple-info.clean p, .simple-info.clean strong {text-shadow: 0px 0px 4px rgba(0,0,0,0.6);}
 </style>
 </head>
 <body style="background:#000000;">
@@ -120,13 +86,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
 
 <div id="intro">
   <div class="light-sweep"></div>
-
   <div class="intro-logo">
     ELE<span class="purple">VIE</span>W
   </div>
-
   <p class="intro-text">웹 실행중...</p>
-
   <div class="loading-bar">
     <div class="loading-fill"></div>
   </div>
@@ -646,6 +609,24 @@ if (user && user.email === ADMIN_EMAIL) {
   }
 });
 
+function formatDate(dateString) {
+  if (!dateString || dateString.length !== 8) return dateString;
+  return `${dateString.slice(0,4)}.${dateString.slice(4,6)}.${dateString.slice(6,8)}`;
+}
+// 🔥 YYYY-MM-DD → YYYY.MM.DD
+function formatDateDash(dateString) {
+  if (!dateString) return dateString;
+  return dateString.replace(/-/g, ".");
+}
+function formatElevatorNo(no) {
+  if (!no) return no;
+  if (no.length === 7) {
+    return no.slice(0,4) + "-" + no.slice(4);
+  }
+  return no; // 다른 경우 그대로
+}
+
+
 // ===========================
 // 리뷰 데이터 저장 (Firebase)
 // ===========================
@@ -831,7 +812,6 @@ function loadSearchLogs() {
 if (inputAddr.value.trim()) {
   saveSearchLog(inputAddr.value.trim(), "address", query);
 }
-
     if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
     if(query) params.append('elevator_no', query);
@@ -858,6 +838,16 @@ if (inputAddr.value.trim()) {
         const hisXml=await hisRes.text();
         const hisDoc=new DOMParser().parseFromString(hisXml,"text/xml");
         const historyItems=Array.from(hisDoc.getElementsByTagName("item"));
+        let latestHistoryDate = "정보 없음";
+if (historyItems && historyItems.length > 0) {
+  const parsed = historyItems.map(h => {
+    const getTag = t => h.getElementsByTagName(t)[0]?.textContent || "";
+    return getTag("inspctDt");
+  });
+
+  parsed.sort((a, b) => b.localeCompare(a));
+  latestHistoryDate = formatDate(parsed[0]);
+}
         console.log('hisXml:', hisXml);
         const shuttleFloor=get("shuttleFloorCnt")||v("shuttleFloorCnt")||'N/A';
         const speed=get("ratedSpeed")||v("ratedSpeed");
@@ -869,42 +859,40 @@ if (inputAddr.value.trim()) {
        div.innerHTML = `
   <div class="card-header">
     <h3>${get("buldNm") || v("buldNm")}</h3>
-    <div class="sub">${elevatorNo} • ${get("elvtrDiv")}</div>
+    <div class="sub">${formatElevatorNo(elevatorNo)} • ${get("elvtrDiv")} • ${kind}</div>
   </div>
 
   <div class="simple-info clean">
 
     <!-- 기본 정보 -->
     <div class="section-title">기본 정보</div>
-    <p>모델명 <strong>${get("elvtrModel")}</strong></p>
-    <p>승강기 종류 <strong>${kind}</strong></p>
-    <p>형식/세부형식 <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
-    <p>승강기 호기 <strong>${get("elvtrAsignNo")}</strong></p>
-    <p>승강기 상태 <strong>${get("elvtrSttsNm")}</strong></p>
+    <p>제조업체 : <strong>${get("mnfcturCpnyNm")}</strong></p>
+    <p>모델명 : <strong>${get("elvtrModel")}</strong></p>
+    <p>구동형식 : <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
+    <p>최초설치일자 : <strong>${formatDate(get("frstInstallationDe"))}</strong></p>
+    <p>최근설치일자 : <strong>${formatDate(get("installationDe"))}</strong></p>
+    <p>승강기 상태 :<strong>${get("elvtrSttsNm")}</strong></p>
+
+    <!-- 성능 및 스펙 정보 -->
+    <div class="section-title">성능 및 스펙 정보</div>
+    <p>정격속력 : <strong>${speedMMin} m/min</strong></p>
+    <p>적재하중 : <strong>${liveLoadDisplay}</strong></p>
+    <p>최대정원 : <strong>${get("ratedCap")}</strong></p>
+    <p>운행층수 : <strong>${shuttleFloor}층</strong></p>
 
     <!-- 설치 정보 -->
     <div class="section-title">설치 정보</div>
-    <p>설치장소 <strong>${get("installationPlace")}</strong></p>
-    <p>주소 <strong>${get("address1")} / ${get("address2")}</strong></p>
-    <p>시도/시군구 <strong>${get("sido")} / ${get("sigungu")}</strong></p>
+    <p>설치 장소 : <strong>${get("installationPlace")}</strong></p>
+    <p>설치 호기 : <strong>${get("elvtrAsignNo")}</strong></p>
+    <p>주소 : <strong>${get("address1")} / ${get("address2")}</strong></p>
 
-    <!-- 성능 정보 -->
-    <div class="section-title">성능 정보</div>
-    <p>정격속도 <strong>${speedMMin} m/min</strong></p>
-    <p>운행층수 <strong>${shuttleFloor}층</strong></p>
-    <p>적재하중 <strong>${liveLoadDisplay}</strong></p>
-    <p>최대정원 <strong>${get("ratedCap")}</strong></p>
-
-    <!-- 날짜 정보 -->
-    <div class="section-title">날짜 정보</div>
-    <p>설치일자 <strong>최초 ${get("frstInstallationDe")} / 최근 ${get("installationDe")}</strong></p>
-    <p>유효기간 <strong>${get("applcBeDt")} ~ ${get("applcEnDt")}</strong></p>
-
-    <!-- 제조 / 관리 -->
-    <div class="section-title">제조 · 관리</div>
-    <p>제조업체 <strong>${get("mnfcturCpnyNm")}</strong></p>
-    <p>보수업체 <strong>${get("companyNm")}</strong></p>
-    <p>관리기관 <strong>${get("inspctInsttNm")}</strong></p>
+    <!-- 관리 및 유지보수 정보 -->
+    <div class="section-title">관리 및 유지보수 정보</div>
+    <p>보수업체 : <strong>${get("companyNm")}</strong></p>
+    <p>관리기관 : <strong>${get("inspctInsttNm")}</strong></p>
+    <p>최종 검사일 : <strong>${formatDateDash(latestHistoryDate)}</strong></p>
+    <p>운행 유효기간 : <strong>${formatDate(get("applcBeDt"))} ~ ${formatDate(get("applcEnDt"))}</strong></p>
+    
 
     <!-- 버튼 -->
     <div class="btn-row-simple">
@@ -1040,7 +1028,6 @@ loginDoBtn.addEventListener("click", () => {
 // ===============================
 // 자동 로그인 감지 + 즐겨찾기 동기화
 // ===============================
-let localFavs = getFavorites();
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     console.log("로그인됨:", user.email);
@@ -1054,33 +1041,30 @@ auth.onAuthStateChanged(async (user) => {
       auth.signOut();
     };
 
-    // 클라우드 즐겨찾기 가져오기
+    // 🔥 서버의 즐겨찾기 가져오기
     const snap = await favCloudRef(user.uid).once("value");
-    const cloudFavs = snap.val() || [];
+    let cloudFavs = snap.val() || [];
 
-    // localStorage와 merge
-    // cloudFavs가 문자열일 수도 있으므로 변환
-// cloudFavs가 문자열일 수도 있으므로 변환
-let normalizedCloud = (cloudFavs || []).map(f => {
-  if (typeof f === "string") return { elevatorNo: f, buldNm: "" };
-  return f;
-});
+    // 🔧 데이터 정리
+    cloudFavs = cloudFavs.map(f => {
+      if (typeof f === "string") return { elevatorNo: f, buldNm: "" };
+      return f;
+    });
 
-// localFavs + cloudFavs 병합
-let merged = [...localFavs, ...normalizedCloud];
+    // 🚫 병합은 이제 필요 없음
+    // let merged = [...localFavs, ...normalizedCloud];
+    // merged = merged.filter(...)
 
-// 중복 제거
-merged = merged.filter(
-  (v, i, arr) => arr.findIndex(t => t.elevatorNo === v.elevatorNo) === i
-);
+    // 🔥 서버 데이터 그대로 로컬 저장
+    saveFavorites(cloudFavs);
 
-// 로컬 + 클라우드 저장
-saveFavorites(merged);
-
+    // UI 업데이트
     renderFavorites();
     updateCardStars();
+
   } else {
     console.log("로그아웃됨");
+
     loginBtn.textContent = "🔐 로그인";
     loginBtn.style.borderColor = "#4da3ff";
     loginBtn.style.color = "#4da3ff";
@@ -1090,6 +1074,7 @@ saveFavorites(merged);
     };
   }
 });
+
 
   // ==== 파티클 ====
   const c=document.getElementById('particle-wrap'); const ctx=c.getContext('2d'); let w,h;
@@ -1250,22 +1235,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 즐겨찾기 모달 내 삭제 버튼 클릭
     if (e.target.classList.contains('remove-fav-btn')) {
-      e.stopPropagation();
-      const parent = e.target.closest('.fav-item');
-      const elevatorNo = parent.dataset.elevator;
+  e.stopPropagation();
 
-      favs = favs.filter(f => f.elevatorNo !== elevatorNo);
-saveFavorites(favs); // 로컬 저장
+  const parent = e.target.closest('.fav-item');
+  const elevatorNo = parent.dataset.elevator;
 
-// 🔥 클라우드에서도 삭제
-const user = firebase.auth().currentUser;
-if (user) {
-  favCloudRef(user.uid).set(favs);
+  // 항상 최신 로컬 데이터 가져오기
+  let favs = getFavorites();
+
+  // 삭제
+  favs = favs.filter(f => f.elevatorNo !== elevatorNo);
+
+  // 로컬 저장
+  saveFavorites(favs);
+
+  // 서버 저장
+  const user = firebase.auth().currentUser;
+  if (user) {
+    favCloudRef(user.uid).set(favs);
+  }
+
+  // UI 업데이트
+  renderFavorites();
+  updateCardStars();
 }
-      saveFavorites(favs);
-      renderFavorites();
-      updateCardStars();
-    }
+
 
   });
 
