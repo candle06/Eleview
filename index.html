@@ -291,10 +291,6 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
     >
   </div>
 
-<div class="box">
-  <input id="buldName" type="text" placeholder="건물명 입력 (추가중)">
-</div>
-
   <div class="box">
     <input id="buldAddress" type="text" placeholder="건물주소 입력">
   </div>
@@ -835,202 +831,173 @@ inputAddr.addEventListener("keydown", function(e) {
   }
 });
 
-// ===============================
-// ⭐ 건물명 검색 API (건물별승강기제원정보 전용)
-// ===============================
-async function searchByBuildingName(nameValue) {
-  const params = new URLSearchParams({
-    serviceKey,
-    buldNm: nameValue,
-    pageNo: "1",
-    numOfRows: "30"
-  });
+btn.addEventListener('click', async ()=>{
+
+  const query = inputNo.value.trim();          // 승강기 번호
+  const addrValue = inputAddr.value.trim();    // 주소
+
+  // 검색 로그
+  function saveSearchLog(q, type, address = "") {
+    const user = firebase.auth().currentUser;
+    const userEmail = user ? user.email : "비로그인";
+
+    db.ref("searchLogs").push({
+      query: q || "",
+      type: type || "",
+      addressValue: address || "없음",
+      user: userEmail,
+      timestamp: Date.now()
+    });
+  }
+
+  if (query) saveSearchLog(query, "elevatorNo", addrValue);
+  if (addrValue) saveSearchLog(addrValue, "address", query);
+
+  // 입력값 없음
+  if (!query && !addrValue) {
+    list.innerHTML = '<p>승강기 번호 또는 주소를 입력해주세요.</p>';
+    return;
+  }
+
+  list.innerHTML = "";
 
   try {
-    const res = await fetch(
-      `https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrBuldSpecList?${params.toString()}`
-    );
 
-    const xml = await res.text();
-    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    // ===============================
+    // ⭐ 기본 OperationService 검색
+    // ===============================
+    const params = new URLSearchParams({
+      serviceKey,
+      pageNo: "1",
+      numOfRows: "25"
+    });
 
-    const list = Array.from(doc.getElementsByTagName("item"));
-    return list;
-  } catch (err) {
-    console.error("건물명 검색 오류:", err);
-    return [];
+    if (query) params.append("elevator_no", query);
+    if (addrValue) params.append("buld_address", addrValue);
+
+    const res = await fetch(`${API_OPERATION}?${params.toString()}`);
+    const xmlText = await res.text();
+    const xml = new DOMParser().parseFromString(xmlText,"text/xml");
+
+    let items = Array.from(xml.getElementsByTagName("item"));
+
+    // 결과 없음
+    if (items.length === 0) {
+      list.innerHTML = '<p>검색 결과가 없습니다.</p>';
+      return;
+    }
+
+    // ===============================
+    // ⭐ 결과 카드 생성
+    // ===============================
+    for (const item of items) {
+
+      const get = (t)=> item.getElementsByTagName(t)[0]?.textContent || '';
+      const elevatorNo = get("elevatorNo");
+      const kind = get("elvtrKindNm");
+
+      // View API
+      const viewUrl = `${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+      const viewRes = await fetch(viewUrl);
+      const viewXml = await viewRes.text();
+      const viewDoc = new DOMParser().parseFromString(viewXml,"text/xml");
+      const viewItem = viewDoc.getElementsByTagName("item")[0];
+
+      const v = (t)=> viewItem?.getElementsByTagName(t)[0]?.textContent || '';
+
+      // History API
+      const historyUrl = `${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+      const hisRes = await fetch(historyUrl);
+      const hisXml = await hisRes.text();
+      const hisDoc = new DOMParser().parseFromString(hisXml,"text/xml");
+      const historyItems = Array.from(hisDoc.getElementsByTagName("item"));
+
+      let latestHistoryDate = "정보 없음";
+      if (historyItems.length > 0) {
+        const parsed = historyItems.map(h =>
+          h.getElementsByTagName("inspctDt")[0]?.textContent || ""
+        );
+        parsed.sort((a,b)=>b.localeCompare(a));
+        latestHistoryDate = formatDate(parsed[0]);
+      }
+
+      // 속력·스펙 계산
+      const shuttleFloor = get("shuttleFloorCnt") || v("shuttleFloorCnt") || 'N/A';
+      const speed = get("ratedSpeed") || v("ratedSpeed");
+      const speedMMin = speed ? (parseFloat(speed) * 60).toFixed(1) : 'N/A';
+      const liveLoad = get("liveLoad") || v("liveLoad");
+      const liveLoadDisplay = liveLoad ? `${liveLoad} kg` : 'N/A';
+
+      const div = document.createElement('div');
+      div.className = 'card';
+
+      const stts = get("elvtrSttsNm");
+      if (stts.includes("운행중지")) div.classList.add("stopped");
+
+      div.innerHTML = `
+        <div class="card-header">
+          <h3>${get("buldNm") || v("buldNm")}</h3>
+          <div class="sub">${formatElevatorNo(elevatorNo)} • ${get("elvtrDiv")} • ${kind}</div>
+        </div>
+
+        <div class="simple-info clean">
+          <div class="section-title">기본 정보</div>
+          <p>제조업체 : <strong>${get("mnfcturCpnyNm")}</strong></p>
+          <p>모델명 : <strong>${get("elvtrModel")}</strong></p>
+          <p>구동형식 : <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
+          <p>최초설치일자 : <strong>${formatDate(get("frstInstallationDe"))}</strong></p>
+          <p>최근설치일자 : <strong>${formatDate(get("installationDe"))}</strong></p>
+          <p>승강기 상태 : <strong>${get("elvtrSttsNm")}</strong></p>
+
+          <div class="section-title">성능 및 스펙 정보</div>
+          <p>정격속력 : <strong>${speedMMin} m/min</strong></p>
+          <p>적재하중 : <strong>${liveLoadDisplay}</strong></p>
+          <p>최대정원 : <strong>${get("ratedCap")}</strong></p>
+          <p>운행층수 : <strong>${shuttleFloor}층</strong></p>
+
+          <div class="section-title">설치 정보</div>
+          <p>설치 장소 : <strong>${get("installationPlace")}</strong></p>
+          <p>설치 호기 : <strong>${get("elvtrAsignNo")}</strong></p>
+          <p>주소 : <strong>${get("address1")} / ${get("address2")}</strong></p>
+
+          <div class="section-title">관리 및 유지보수 정보</div>
+          <p>보수업체 : <strong>${get("companyNm")}</strong></p>
+          <p>관리기관 : <strong>${get("inspctInsttNm")}</strong></p>
+          <p>최종 검사일 : <strong>${formatDateDash(latestHistoryDate)}</strong></p>
+          <p>운행 유효기간 : <strong>${formatDate(get("applcBeDt"))} ~ ${formatDate(get("applcEnDt"))}</strong></p>
+
+          <div class="btn-row-simple">
+            <button class="btn bottom-btn fav-btn" data-elevator='${elevatorNo}'>⭐ 즐겨찾기</button>
+            <button class="btn bottom-btn view-history-btn"
+              data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
+                const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent || "";
+                return {
+                  inspctDt:hget("inspctDt"),
+                  inspctInsttNm:hget("inspctInsttNm"),
+                  inspctKind:hget("inspctKind"),
+                  psexamYn:hget("psexamYn")
+                };
+              })))}'>
+              📌 검사이력 보기
+            </button>
+          </div>
+        </div>
+      `;
+
+      list.appendChild(div);
+
+      // 즐겨찾기 상태 적용
+      const favBtn = div.querySelector(".fav-btn");
+      const favs = getFavorites();
+      if (favs.some(f=>f.elevatorNo===elevatorNo)) favBtn.textContent = "★";
+    }
+
+  } catch(e) {
+    list.innerHTML = `<p>오류: ${e.message}</p>`;
   }
-}
 
-  btn.addEventListener('click', async ()=>{
-    const nameValue = inputName.value.trim();
-    const query=inputNo.value.trim();
+}); // 클릭 종료
 
-function saveSearchLog(query, type, address = "") {
-  const user = firebase.auth().currentUser;
-  const userEmail = user ? user.email : "비로그인";
-
-  db.ref("searchLogs").push({
-    query: query || "",
-    type: type || "",
-    addressValue: address || "없음",
-    user: userEmail,   // 🔥 이메일 저장!
-    timestamp: Date.now()
-  });
-}
-
-if (query) {
-  saveSearchLog(query, "elevatorNo", inputAddr.value.trim());
-}
-
-if (inputAddr.value.trim()) {
-  saveSearchLog(inputAddr.value.trim(), "address", query);
-}
-    if(!query && !inputAddr.value.trim() && !nameValue){
-  list.innerHTML='<p>승강기 번호, 주소 또는 건물명을 입력해주세요.</p>';
-  return;
-}
-    const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
-    if(query) params.append('elevator_no', query);
-    if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
-    list.innerHTML='';
-    try{
-      const res=await fetch(`${API_OPERATION}?${params}`);
-      const xmlText=await res.text();
-      const xml=new DOMParser().parseFromString(xmlText,"text/xml");
-      const items=Array.from(xml.getElementsByTagName("item"));
-      // 주소 입력이 있으면 → 건물명 검색도 같이 실행
-let nameItems = [];
-
-// 주소로 건물명 검색
-if (inputAddr.value.trim()) {
-  nameItems = await searchByBuildingName(inputAddr.value.trim());
-}
-
-// 건물명 입력 박스가 있다면 별도 검색
-if (typeof inputName !== "undefined" && inputName.value.trim()) {
-  const nameValue = inputName.value.trim();
-  const extra = await searchByBuildingName(nameValue);
-  nameItems.push(...extra);
-}
-
-// 두 API 결과 합치기
-items.push(...nameItems);
-
-// 최종 결과 없으면 메시지
-if (items.length === 0) {
-  list.innerHTML = '<p>검색 결과가 없습니다.</p>';
-  return;
-}
-      for(const item of items){
-        const get=(t)=>item.getElementsByTagName(t)[0]?.textContent||'';
-        const elevatorNo=get("elevatorNo");
-        const kind=get("elvtrKindNm");
-        const viewUrl=`${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-        const viewRes=await fetch(viewUrl);
-        const viewXml=await viewRes.text();
-        const viewDoc=new DOMParser().parseFromString(viewXml,"text/xml");
-        const viewItem=viewDoc.getElementsByTagName("item")[0];
-        const v = (t) => {
-  try {
-    return viewItem?.getElementsByTagName(t)?.[0]?.textContent || '';
-  } catch {
-    return '';
-  }
-};
-        const historyUrl=`${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-        const hisRes=await fetch(historyUrl);
-        const hisXml=await hisRes.text();
-        const hisDoc=new DOMParser().parseFromString(hisXml,"text/xml");
-        const historyItems=Array.from(hisDoc.getElementsByTagName("item"));
-        let latestHistoryDate = "정보 없음";
-if (historyItems && historyItems.length > 0) {
-  const parsed = historyItems.map(h => {
-    const getTag = t => h.getElementsByTagName(t)[0]?.textContent || "";
-    return getTag("inspctDt");
-  });
-
-  parsed.sort((a, b) => b.localeCompare(a));
-  latestHistoryDate = formatDate(parsed[0]);
-}
-        console.log('hisXml:', hisXml);
-        const shuttleFloor=get("shuttleFloorCnt")||v("shuttleFloorCnt")||'N/A';
-        const speed=get("ratedSpeed")||v("ratedSpeed");
-        const speedMMin=speed?(parseFloat(speed)*60).toFixed(1):'N/A';
-        const liveLoad=get("liveLoad")||v("liveLoad");
-        const liveLoadDisplay=liveLoad?`${liveLoad} kg`:'N/A';
-        const div=document.createElement('div');
-        div.className='card';
-        const stts = get("elvtrSttsNm");
-if (stts.includes("운행중지")) div.classList.add("stopped");
-       div.innerHTML = `
-  <div class="card-header">
-    <h3>${get("buldNm") || v("buldNm")}</h3>
-    <div class="sub">${formatElevatorNo(elevatorNo)} • ${get("elvtrDiv")} • ${kind}</div>
-  </div>
-
-  <div class="simple-info clean">
-
-    <!-- 기본 정보 -->
-    <div class="section-title">기본 정보</div>
-    <p>제조업체 : <strong>${get("mnfcturCpnyNm")}</strong></p>
-    <p>모델명 : <strong>${get("elvtrModel")}</strong></p>
-    <p>구동형식 : <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
-    <p>최초설치일자 : <strong>${formatDate(get("frstInstallationDe"))}</strong></p>
-    <p>최근설치일자 : <strong>${formatDate(get("installationDe"))}</strong></p>
-    <p>승강기 상태 :<strong>${get("elvtrSttsNm")}</strong></p>
-
-    <!-- 성능 및 스펙 정보 -->
-    <div class="section-title">성능 및 스펙 정보</div>
-    <p>정격속력 : <strong>${speedMMin} m/min</strong></p>
-    <p>적재하중 : <strong>${liveLoadDisplay}</strong></p>
-    <p>최대정원 : <strong>${get("ratedCap")}</strong></p>
-    <p>운행층수 : <strong>${shuttleFloor}층</strong></p>
-
-    <!-- 설치 정보 -->
-    <div class="section-title">설치 정보</div>
-    <p>설치 장소 : <strong>${get("installationPlace")}</strong></p>
-    <p>설치 호기 : <strong>${get("elvtrAsignNo")}</strong></p>
-    <p>주소 : <strong>${get("address1")} / ${get("address2")}</strong></p>
-
-    <!-- 관리 및 유지보수 정보 -->
-    <div class="section-title">관리 및 유지보수 정보</div>
-    <p>보수업체 : <strong>${get("companyNm")}</strong></p>
-    <p>관리기관 : <strong>${get("inspctInsttNm")}</strong></p>
-    <p>최종 검사일 : <strong>${formatDateDash(latestHistoryDate)}</strong></p>
-    <p>운행 유효기간 : <strong>${formatDate(get("applcBeDt"))} ~ ${formatDate(get("applcEnDt"))}</strong></p>
-    
-
-    <!-- 버튼 -->
-    <div class="btn-row-simple">
-      <button class="btn bottom-btn fav-btn" data-elevator='${elevatorNo}'>⭐ 즐겨찾기</button>
-      <button class="btn bottom-btn view-history-btn"
-        data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
-          const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent || "";
-          return {
-            inspctDt:hget("inspctDt"),
-            inspctInsttNm:hget("inspctInsttNm"),
-            inspctKind:hget("inspctKind"),
-            psexamYn:hget("psexamYn")
-          };
-        })))}'>
-        📌 검사이력 보기
-      </button>
-    </div>
-
-  </div>
-`;
-
-
-
-        list.appendChild(div);
-        // ✅ 카드 생성 후 바로 즐겨찾기 상태 적용
-        const favBtn = div.querySelector('.fav-btn');
-        const favs = getFavorites();
-        if(favs.includes(elevatorNo)) favBtn.textContent = '★';
-               }
-    }catch(e){ list.innerHTML=`<p>오류: ${e.message}</p>`; }
-  });
 
   // ==== 검사이력 모달 ====
   document.addEventListener('click', e=>{
@@ -1568,4 +1535,3 @@ updateCardStars();
 </script>
 </body>
 </html>
-
