@@ -828,7 +828,30 @@ inputAddr.addEventListener("keydown", function(e) {
     btn.click();
   }
 });
+// ===============================
+// ⭐ 건물명 검색 API (새로 추가하는 완전 버전)
+// ===============================
+async function searchByBuildingName(addrValue) {
+  const nameParams = new URLSearchParams({
+    serviceKey,
+    buldNm: addrValue,
+    pageNo: "1",
+    numOfRows: "30"
+  });
 
+  try {
+    const nameRes = await fetch(
+      `https://apis.data.go.kr/B553664/BuldSpecService/getElvtrBuldSpecList?${nameParams.toString()}`
+    );
+
+    const nameXml = await nameRes.text();
+    const nameDoc = new DOMParser().parseFromString(nameXml, "text/xml");
+    return Array.from(nameDoc.getElementsByTagName("item"));
+  } catch (err) {
+    console.log("건물명 검색 오류:", err);
+    return [];
+  }
+}
   btn.addEventListener('click', async ()=>{
 
     const query=inputNo.value.trim();
@@ -863,7 +886,20 @@ if (inputAddr.value.trim()) {
       const xmlText=await res.text();
       const xml=new DOMParser().parseFromString(xmlText,"text/xml");
       const items=Array.from(xml.getElementsByTagName("item"));
-      if(items.length===0){ list.innerHTML='<p>검색 결과가 없습니다.</p>'; return; }
+      // 주소 입력이 있으면 → 건물명 검색도 같이 실행
+let nameItems = [];
+if (inputAddr.value.trim()) {
+  nameItems = await searchByBuildingName(inputAddr.value.trim());
+}
+
+// 두 API 결과 합치기
+items.push(...nameItems);
+
+// 최종 결과 없으면 메시지
+if (items.length === 0) {
+  list.innerHTML = '<p>검색 결과가 없습니다.</p>';
+  return;
+}
       for(const item of items){
         const get=(t)=>item.getElementsByTagName(t)[0]?.textContent||'';
         const elevatorNo=get("elevatorNo");
@@ -873,7 +909,13 @@ if (inputAddr.value.trim()) {
         const viewXml=await viewRes.text();
         const viewDoc=new DOMParser().parseFromString(viewXml,"text/xml");
         const viewItem=viewDoc.getElementsByTagName("item")[0];
-        const v=(t)=>viewItem?.getElementsByTagName(t)[0]?.textContent||'';
+        const v = (t) => {
+  try {
+    return viewItem?.getElementsByTagName(t)?.[0]?.textContent || '';
+  } catch {
+    return '';
+  }
+};
         const historyUrl=`${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
         const hisRes=await fetch(historyUrl);
         const hisXml=await hisRes.text();
