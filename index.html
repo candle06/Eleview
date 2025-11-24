@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -289,6 +290,10 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
       autocomplete="off"
     >
   </div>
+
+<div class="box">
+  <input id="buldName" type="text" placeholder="건물명 입력 (현제 지원안함)">
+</div>
 
   <div class="box">
     <input id="buldAddress" type="text" placeholder="건물주소 입력">
@@ -806,6 +811,7 @@ function formatDateTime(ts) {
   // ==== 검색 & API & 결과 ====
   const inputNo=document.getElementById('elevatorNo');
   const inputAddr=document.getElementById('buldAddress');
+  const inputName = document.getElementById('buldName');
   const btn=document.getElementById('searchBtn');
   const list=document.getElementById('result-list');
   const favModal = document.getElementById('favModal');
@@ -828,32 +834,36 @@ inputAddr.addEventListener("keydown", function(e) {
     btn.click();
   }
 });
+
 // ===============================
-// ⭐ 건물명 검색 API (새로 추가하는 완전 버전)
+// ⭐ 건물명 검색 API (건물별승강기제원정보 전용)
 // ===============================
-async function searchByBuildingName(addrValue) {
-  const nameParams = new URLSearchParams({
+async function searchByBuildingName(nameValue) {
+  const params = new URLSearchParams({
     serviceKey,
-    buldNm: addrValue,
+    buldNm: nameValue,
     pageNo: "1",
     numOfRows: "30"
   });
 
   try {
-    const nameRes = await fetch(
-      `https://apis.data.go.kr/B553664/BuldSpecService/getElvtrBuldSpecList?${nameParams.toString()}`
+    const res = await fetch(
+      `https://apis.data.go.kr/B553664/ElevatorInformationService/getElvtrBuldSpecList?${params.toString()}`
     );
 
-    const nameXml = await nameRes.text();
-    const nameDoc = new DOMParser().parseFromString(nameXml, "text/xml");
-    return Array.from(nameDoc.getElementsByTagName("item"));
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+
+    const list = Array.from(doc.getElementsByTagName("item"));
+    return list;
   } catch (err) {
-    console.log("건물명 검색 오류:", err);
+    console.error("건물명 검색 오류:", err);
     return [];
   }
 }
-  btn.addEventListener('click', async ()=>{
 
+  btn.addEventListener('click', async ()=>{
+    const nameValue = inputName.value.trim();
     const query=inputNo.value.trim();
 
 function saveSearchLog(query, type, address = "") {
@@ -876,7 +886,10 @@ if (query) {
 if (inputAddr.value.trim()) {
   saveSearchLog(inputAddr.value.trim(), "address", query);
 }
-    if(!query && !inputAddr.value.trim()){ list.innerHTML='<p>승강기 번호 또는 건물주소를 입력해주세요.</p>'; return; }
+    if(!query && !inputAddr.value.trim() && !nameValue){
+  list.innerHTML='<p>승강기 번호, 주소 또는 건물명을 입력해주세요.</p>';
+  return;
+}
     const params=new URLSearchParams({ serviceKey, pageNo:'1', numOfRows:'25' });
     if(query) params.append('elevator_no', query);
     if(inputAddr.value.trim()) params.append('buld_address', inputAddr.value.trim());
@@ -888,8 +901,17 @@ if (inputAddr.value.trim()) {
       const items=Array.from(xml.getElementsByTagName("item"));
       // 주소 입력이 있으면 → 건물명 검색도 같이 실행
 let nameItems = [];
+
+// 주소로 건물명 검색
 if (inputAddr.value.trim()) {
   nameItems = await searchByBuildingName(inputAddr.value.trim());
+}
+
+// 건물명 입력 박스가 있다면 별도 검색
+if (typeof inputName !== "undefined" && inputName.value.trim()) {
+  const nameValue = inputName.value.trim();
+  const extra = await searchByBuildingName(nameValue);
+  nameItems.push(...extra);
 }
 
 // 두 API 결과 합치기
