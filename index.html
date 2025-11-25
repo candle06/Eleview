@@ -811,6 +811,29 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
     snapshot.forEach(child => { if(now - child.val().lastActive < 15000) count++; });
     document.getElementById('visitorCount').textContent = `접속자: ${count}명`;
   });
+// ====== 저장된 커스텀 불러오기 ======
+window.addEventListener("DOMContentLoaded", () => {
+
+  // 배경 그라데이션
+  const savedBg = localStorage.getItem("eleview_custom_bg");
+  if (savedBg) {
+    const bg = JSON.parse(savedBg);
+    document.body.style.background =
+      `linear-gradient(${bg.angle}deg, ${bg.start}, ${bg.end})`;
+
+    // 설정창에 불러오기
+    document.getElementById("bgStartColor").value = bg.start;
+    document.getElementById("bgEndColor").value = bg.end;
+    document.getElementById("bgAngle").value = bg.angle;
+  }
+
+  // 글씨색
+  const savedTextColor = localStorage.getItem("textColor");
+  if (savedTextColor) {
+    document.body.style.color = savedTextColor;
+    document.getElementById('textColorPicker').value = savedTextColor;
+  }
+});
 
 document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
 document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
@@ -1134,7 +1157,6 @@ function formatDateTime(ts) {
   // ==== 검색 & API & 결과 ====
   const inputNo=document.getElementById('elevatorNo');
   const inputAddr=document.getElementById('buldAddress');
-  const inputName = document.getElementById('buldName');
   const btn=document.getElementById('searchBtn');
   const list=document.getElementById('result-list');
   const favModal = document.getElementById('favModal');
@@ -1489,7 +1511,6 @@ auth.onAuthStateChanged(async (user) => {
   const closeModal=document.getElementById('closeModal');
   const applyBtn=document.getElementById('applyBtn');
   const bgImageInput=document.getElementById('bgImage');
-  const bgColorInput=document.getElementById('bgColor');
   const particleColorInput=document.getElementById('particleColor');
   const particleCountInput=document.getElementById('particleCount');
   const searchTextInput=document.getElementById('searchText');
@@ -1504,12 +1525,10 @@ function applyCustomGradient() {
   closeModal.addEventListener('click', ()=>customModal.style.display='none');
 
   window.addEventListener('load', ()=>{
-    const bgColor=localStorage.getItem('bgColor');
     const particleColor=localStorage.getItem('particleColor');
     const particleCount=localStorage.getItem('particleCount');
     const searchText=localStorage.getItem('searchText');
     const searchColor=localStorage.getItem('searchColor');
-    const bgImage=localStorage.getItem('bgImage');
     if(bgImage) document.body.style.background=`url(${bgImage}) center/cover no-repeat`;
     else if(bgColor) document.body.style.background=bgColor;
     initParticles(particleCount?parseInt(particleCount):80, particleColor||'#9b5cff');
@@ -1537,7 +1556,6 @@ window.addEventListener('click', (e) => {
 
   applyBtn.addEventListener('click', ()=>{
     const file=bgImageInput.files[0];
-    const color=bgColorInput.value;
     if(file){
       const reader=new FileReader();
       reader.onload=function(e){
@@ -1547,8 +1565,6 @@ window.addEventListener('click', (e) => {
       reader.readAsDataURL(file);
       localStorage.setItem('bgColor', color);
     }else{
-      document.body.style.background=color;
-      localStorage.setItem('bgColor', color);
       localStorage.removeItem('bgImage');
     }
     const pCount=parseInt(particleCountInput.value);
@@ -1556,11 +1572,8 @@ window.addEventListener('click', (e) => {
     initParticles(pCount,pColor);
     localStorage.setItem('particleCount',pCount);
     localStorage.setItem('particleColor',pColor);
-    const sText=searchTextInput.value;
     const sColor=searchColorInput.value;
-    btn.textContent=sText;
     btn.style.background=`linear-gradient(180deg, ${sColor} 0%, ${sColor} 100%)`;
-    localStorage.setItem('searchText',sText);
     localStorage.setItem('searchColor',sColor);
     customModal.style.display='none';
   });
