@@ -728,30 +728,6 @@ setTimeout(() => {
   const intro = document.getElementById("intro");
   if (intro) intro.style.display = "none";
 }, 5000);
-
-document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
-document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
-document.getElementById("bgAngle").addEventListener("input", applyCustomGradient);
-// 로그인 감지
-firebase.auth().onAuthStateChanged((user)=>{
-  const menuPanel = document.getElementById('menuPanel');
-
-  // 기존 관리자/리뷰 버튼 삭제 후 재생성
-  const oldAdmin = document.getElementById('adminBtn');
-  const oldReview = document.getElementById('reviewBtn');
-  if(oldAdmin) oldAdmin.remove();
-  if(oldReview) oldReview.remove();
-
-  if(user){
-    // ⭐ 일반 유저용: 리뷰 작성
-    const reviewBtn = document.createElement('button');
-    reviewBtn.id = "reviewBtn";
-    reviewBtn.textContent = "✏️ 리뷰 작성";
-    reviewBtn.style.cssText = "padding:6px 0; font-weight:600; border-radius:8px; border:2px solid #66ff99; color:#66ff99; background:none; width:100%;";
-    reviewBtn.onclick = ()=>{
-      document.getElementById('reviewModal').style.display = 'flex';
-    };
-    menuPanel.appendChild(reviewBtn);
 // =========================
 // 📢 공지 팝업 기능 (최종버전)
 // =========================
@@ -812,6 +788,29 @@ db.ref("notice/message").on("value", snap=>{
     showNotice(msg);
   }
 });
+document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgAngle").addEventListener("input", applyCustomGradient);
+// 로그인 감지
+firebase.auth().onAuthStateChanged((user)=>{
+  const menuPanel = document.getElementById('menuPanel');
+
+  // 기존 관리자/리뷰 버튼 삭제 후 재생성
+  const oldAdmin = document.getElementById('adminBtn');
+  const oldReview = document.getElementById('reviewBtn');
+  if(oldAdmin) oldAdmin.remove();
+  if(oldReview) oldReview.remove();
+
+  if(user){
+    // ⭐ 일반 유저용: 리뷰 작성
+    const reviewBtn = document.createElement('button');
+    reviewBtn.id = "reviewBtn";
+    reviewBtn.textContent = "✏️ 리뷰 작성";
+    reviewBtn.style.cssText = "padding:6px 0; font-weight:600; border-radius:8px; border:2px solid #66ff99; color:#66ff99; background:none; width:100%;";
+    reviewBtn.onclick = ()=>{
+      document.getElementById('reviewModal').style.display = 'flex';
+    };
+    menuPanel.appendChild(reviewBtn);
 
 // 🔧 관리자 전용 메뉴 버튼
 if (user && user.email === ADMIN_EMAIL) {
@@ -849,7 +848,6 @@ function formatElevatorNo(no) {
   }
   return no; // 다른 경우 그대로
 }
-
 
 // ===========================
 // 리뷰 데이터 저장 (Firebase)
