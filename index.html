@@ -673,19 +673,24 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
   });
 // ====== 저장된 커스텀 불러오기 ======
 window.addEventListener("DOMContentLoaded", () => {
+  // 이미지 먼저 적용
+    const savedImg = localStorage.getItem("bgImage");
+    if (savedImg) {
+        document.body.style.background = `url(${savedImg}) center/cover no-repeat`;
+        return; // 이미지 있으면 여기서 끝
+    }
 
-  // 배경 그라데이션
-  const savedBg = localStorage.getItem("eleview_custom_bg");
-  if (savedBg) {
-    const bg = JSON.parse(savedBg);
-    document.body.style.background =
-      `linear-gradient(${bg.angle}deg, ${bg.start}, ${bg.end})`;
+    // 그라데이션 불러오기
+    const savedBg = localStorage.getItem("eleview_custom_bg");
+    if (savedBg) {
+        const bg = JSON.parse(savedBg);
+        document.body.style.background =
+          `linear-gradient(${bg.angle}deg, ${bg.start}, ${bg.end})`;
 
-    // 설정창에 불러오기
-    document.getElementById("bgStartColor").value = bg.start;
-    document.getElementById("bgEndColor").value = bg.end;
-    document.getElementById("bgAngle").value = bg.angle;
-  }
+        document.getElementById("bgStartColor").value = bg.start;
+        document.getElementById("bgEndColor").value = bg.end;
+        document.getElementById("bgAngle").value = bg.angle;
+    }
 
   // 글씨색
   const savedTextColor = localStorage.getItem("textColor");
@@ -1421,7 +1426,6 @@ window.addEventListener('click', (e) => {
         localStorage.setItem('bgImage', e.target.result);
       };
       reader.readAsDataURL(file);
-      localStorage.setItem('bgColor', color);
     }else{
       localStorage.removeItem('bgImage');
     }
