@@ -725,10 +725,16 @@ input[type=text]{flex:1; background:transparent; border:none; outline:none; colo
   <div id="customContent">
     <h3>커스터마이징</h3>
     <label>배경 이미지 선택: <input type="file" id="bgImage" accept="image/*"></label>
-    <label>배경 색상 (이미지 없을 때): <input type="color" id="bgColor" value="#1a002e"></label>
+    <label>배경 그라데이션 시작색</label>
+<input type="color" id="bgStartColor" value="#0c1d3a">
+
+<label>배경 그라데이션 끝색</label>
+<input type="color" id="bgEndColor" value="#14427a">
+
+<label>그라데이션 각도 (deg)</label>
+<input type="number" id="bgAngle" value="135" min="0" max="360">
     <label>파티클 색상: <input type="color" id="particleColor" value="#9b5cff"></label>
     <label>파티클 수량: <input type="number" id="particleCount" value="80" min="10" max="300"></label>
-    <label>검색 버튼 텍스트: <input type="text" id="searchText" value="검색"></label>
     <label>검색 버튼 색상: <input type="color" id="searchColor" value="#9b5cff"></label>
     <button class="btn" id="applyBtn">적용</button>
 <label>글씨 색상 선택</label>
@@ -805,6 +811,10 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
     snapshot.forEach(child => { if(now - child.val().lastActive < 15000) count++; });
     document.getElementById('visitorCount').textContent = `접속자: ${count}명`;
   });
+
+document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgAngle").addEventListener("input", applyCustomGradient);
 
   // ==== 햄버거 메뉴 ====
   const menuBtn = document.getElementById('menuBtn');
@@ -1466,7 +1476,13 @@ auth.onAuthStateChanged(async (user) => {
   const particleCountInput=document.getElementById('particleCount');
   const searchTextInput=document.getElementById('searchText');
   const searchColorInput=document.getElementById('searchColor');
+function applyCustomGradient() {
+    const start = document.getElementById("bgStartColor").value;
+    const end = document.getElementById("bgEndColor").value;
+    const angle = document.getElementById("bgAngle").value;
 
+    document.body.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
+}
   closeModal.addEventListener('click', ()=>customModal.style.display='none');
 
   window.addEventListener('load', ()=>{
