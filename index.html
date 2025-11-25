@@ -815,7 +815,23 @@ background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:
 document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
 document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
 document.getElementById("bgAngle").addEventListener("input", applyCustomGradient);
+function saveGradientSettings() {
+    const start = document.getElementById("bgStartColor").value;
+    const end = document.getElementById("bgEndColor").value;
+    const angle = document.getElementById("bgAngle").value;
 
+    const data = { start, end, angle };
+    localStorage.setItem("eleview_custom_bg", JSON.stringify(data));
+}
+function applyCustomGradient() {
+    const start = document.getElementById("bgStartColor").value;
+    const end = document.getElementById("bgEndColor").value;
+    const angle = document.getElementById("bgAngle").value;
+
+    document.body.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
+
+    saveGradientSettings(); // ← 저장 추가
+}
   // ==== 햄버거 메뉴 ====
   const menuBtn = document.getElementById('menuBtn');
   const menuPanel = document.getElementById('menuPanel');
@@ -830,7 +846,9 @@ setTimeout(() => {
   if (intro) intro.style.display = "none";
 }, 5000);
 
-
+document.getElementById("bgStartColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgEndColor").addEventListener("change", applyCustomGradient);
+document.getElementById("bgAngle").addEventListener("input", applyCustomGradient);
 // 로그인 감지
 firebase.auth().onAuthStateChanged((user)=>{
   const menuPanel = document.getElementById('menuPanel');
@@ -1887,6 +1905,20 @@ bar.addEventListener("click", async () => {
 
   }, 900);
 });
+(function loadCustomGradient() {
+    const saved = localStorage.getItem("eleview_custom_bg");
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+
+    // 필드에 값 채우기
+    document.getElementById("bgStartColor").value = data.start;
+    document.getElementById("bgEndColor").value = data.end;
+    document.getElementById("bgAngle").value = data.angle;
+
+    // 배경 적용
+    document.body.style.background = `linear-gradient(${data.angle}deg, ${data.start}, ${data.end})`;
+})();
 // ================================
 // 초기화 및 렌더
 // ================================
