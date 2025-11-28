@@ -488,6 +488,56 @@ btn.addEventListener('click', async ()=>{
       const speedMMin = speed ? (parseFloat(speed) * 60).toFixed(1) : 'N/A';
       const liveLoad = get("liveLoad") || v("liveLoad");
       const liveLoadDisplay = liveLoad ? `${liveLoad} kg` : 'N/A';
+// ====== API 정상 응답 → 비상백업 자동 저장 (Realtime DB) ======
+if (items.length > 0) {
+    const first = items[0];
+    const get = (t)=> first.getElementsByTagName(t)[0]?.textContent || '';
+
+    // ==========================
+// 🔥 모든 정보 자동 백업 저장
+// ==========================
+saveEmergencyBackup(elevatorNo, {
+  basic: {
+    buldNm: get("buldNm"),
+    elvtrDiv: get("elvtrDiv"),
+    kind: kind,
+    mnfcturCpnyNm: get("mnfcturCpnyNm"),
+    elvtrModel: get("elvtrModel"),
+    elvtrForm: get("elvtrForm"),
+    elvtrDetailForm: get("elvtrDetailForm"),
+    frstInstallationDe: get("frstInstallationDe"),
+    installationDe: get("installationDe"),
+    elvtrSttsNm: get("elvtrSttsNm"),
+    ratedSpeed: get("ratedSpeed"),
+    liveLoad: get("liveLoad"),
+    ratedCap: get("ratedCap"),
+    floors: shuttleFloor,
+    installationPlace: get("installationPlace"),
+    elvtrAsignNo: get("elvtrAsignNo"),
+    address1: get("address1"),
+    address2: get("address2"),
+    companyNm: get("companyNm"),
+    inspctInsttNm: get("inspctInsttNm"),
+    applcBeDt: get("applcBeDt"),
+    applcEnDt: get("applcEnDt")
+  },
+  history: historyItems.map(h=>{
+    const hget = t => h.getElementsByTagName(t)[0]?.textContent || "";
+    return {
+      inspctDt: hget("inspctDt"),
+      inspctInsttNm: hget("inspctInsttNm"),
+      inspctKind: hget("inspctKind"),
+      psexamYn: hget("psexamYn")
+    };
+  })
+});
+
+
+    // Firebase Realtime Database 자동 백업
+    await db.ref("backup/" + get("elevatorNo")).set(data);
+
+    console.log("🔥 자동 비상백업 저장됨:", data);
+}
 
       const div = document.createElement('div');
       div.className = 'card';
@@ -553,11 +603,37 @@ btn.addEventListener('click', async ()=>{
       if (favs.some(f=>f.elevatorNo===elevatorNo)) favBtn.textContent = "★";
     }
 
-  } catch(e) {
-    list.innerHTML = `<p>오류: ${e.message}</p>`;
+  }catch (err) {
+  console.warn("🚨 API 장애 → 비상백업 로딩");
+
+  const fbSnap = await db.ref("backup/" + query).once("value");
+
+  if (!fbSnap.exists()) {
+      list.innerHTML = "<p>API 장애 + 백업 없음</p>";
+      return;
   }
 
-}); // 클릭 종료
+  const fb = fbSnap.val();
+
+  // 1) 기본정보 페이크 item 객체
+  items = [{
+    getElementsByTagName: (tag) => [{
+      textContent: fb.basic[tag] || ""
+    }],
+    address1: fb.basic.address1,
+    address2: fb.basic.address2
+  }];
+
+  // 2) 검사이력 historyItems 덮어쓰기
+  historyItems = fb.history.map(h=>{
+    return {
+      getElementsByTagName: (tag)=>[{ textContent: h[tag] }]
+    };
+  });
+
+  console.log("🔥 백업데이터로 모두 재구성 완료");
+}}
+);
 
 
   // ==== 검사이력 모달 ====
