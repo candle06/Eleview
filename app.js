@@ -448,110 +448,162 @@ btn.addEventListener('click', async ()=>{
       return;
     }
 
-    // ===============================
-    // ⭐ 결과 카드 생성
-    // ===============================
-    for (const item of items) {
+// ===============================
+// ⭐ Firebase 자동 백업 저장 함수
+// ===============================
+async function saveBackup(elevatorNo, basic, history) {
+  try {
+    await db.ref("backup/" + elevatorNo).set({
+      basic,
+      history,
+      savedAt: Date.now()
+    });
+    console.log(`🔥 백업 저장 완료 → ${elevatorNo}`);
+  } catch (e) {
+    console.warn("백업 저장 실패:", e);
+  }
+}
 
-      const get = (t)=> item.getElementsByTagName(t)[0]?.textContent || '';
-      const elevatorNo = get("elevatorNo");
-      const kind = get("elvtrKindNm");
+// ===============================
+// ⭐ 결과 카드 생성 + 백업 저장
+// ===============================
+for (const item of items) {
 
-      // View API
-      const viewUrl = `${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-      const viewRes = await fetch(viewUrl);
-      const viewXml = await viewRes.text();
-      const viewDoc = new DOMParser().parseFromString(viewXml,"text/xml");
-      const viewItem = viewDoc.getElementsByTagName("item")[0];
+  const get = (t)=> item.getElementsByTagName(t)[0]?.textContent || '';
+  const elevatorNo = get("elevatorNo");
+  const kind = get("elvtrKindNm");
 
-      const v = (t)=> viewItem?.getElementsByTagName(t)[0]?.textContent || '';
+  // ===========================
+  // 📌 View API
+  // ===========================
+  const viewUrl = `${API_VIEW}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+  const viewRes = await fetch(viewUrl);
+  const viewXml = await viewRes.text();
+  const viewDoc = new DOMParser().parseFromString(viewXml,"text/xml");
+  const viewItem = viewDoc.getElementsByTagName("item")[0];
+  const v = (t)=> viewItem?.getElementsByTagName(t)[0]?.textContent || '';
 
-      // History API
-      const historyUrl = `${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
-      const hisRes = await fetch(historyUrl);
-      const hisXml = await hisRes.text();
-      const hisDoc = new DOMParser().parseFromString(hisXml,"text/xml");
-      const historyItems = Array.from(hisDoc.getElementsByTagName("item"));
+  // ===========================
+  // 📌 History API
+  // ===========================
+  const historyUrl = `${API_HISTORY}?serviceKey=${serviceKey}&elevator_no=${elevatorNo}`;
+  const hisRes = await fetch(historyUrl);
+  const hisXml = await hisRes.text();
+  const hisDoc = new DOMParser().parseFromString(hisXml,"text/xml");
+  const historyItems = Array.from(hisDoc.getElementsByTagName("item"));
 
-      let latestHistoryDate = "정보 없음";
-      if (historyItems.length > 0) {
-        const parsed = historyItems.map(h =>
-          h.getElementsByTagName("inspctDt")[0]?.textContent || ""
-        );
-        parsed.sort((a,b)=>b.localeCompare(a));
-        latestHistoryDate = formatDate(parsed[0]);
-      }
+  // 가장 최근 검사일
+  let latestHistoryDate = "정보 없음";
+  if (historyItems.length > 0) {
+    const parsed = historyItems.map(h =>
+      h.getElementsByTagName("inspctDt")[0]?.textContent || ""
+    );
+    parsed.sort((a,b)=>b.localeCompare(a));
+    latestHistoryDate = formatDate(parsed[0]);
+  }
 
-      // 속력·스펙 계산
-      const shuttleFloor = get("shuttleFloorCnt") || v("shuttleFloorCnt") || 'N/A';
-      const speed = get("ratedSpeed") || v("ratedSpeed");
-      const speedMMin = speed ? (parseFloat(speed) * 60).toFixed(1) : 'N/A';
-      const liveLoad = get("liveLoad") || v("liveLoad");
-      const liveLoadDisplay = liveLoad ? `${liveLoad} kg` : 'N/A';
+  // ===========================
+  // 📌 기본 스펙 계산
+  // ===========================
+  const shuttleFloor = get("shuttleFloorCnt") || v("shuttleFloorCnt") || 'N/A';
+  const speed = get("ratedSpeed") || v("ratedSpeed");
+  const speedMMin = speed ? (parseFloat(speed) * 60).toFixed(1) : 'N/A';
+  const liveLoad = get("liveLoad") || v("liveLoad");
+  const liveLoadDisplay = liveLoad ? `${liveLoad} kg` : 'N/A';
 
-      const div = document.createElement('div');
-      div.className = 'card';
+  // ===========================
+  // 📌 Firebase 자동 백업 저장
+  // ===========================
+  const basicData = {
+    buldNm: get("buldNm") || v("buldNm"),
+    address1: get("address1"),
+    address2: get("address2"),
+    mnfcturCpnyNm: get("mnfcturCpnyNm"),
+    elvtrModel: get("elvtrModel"),
+    elvtrForm: get("elvtrForm"),
+    elvtrDetailForm: get("elvtrDetailForm"),
+    frstInstallationDe: get("frstInstallationDe"),
+    installationDe: get("installationDe"),
+    elvtrSttsNm: get("elvtrSttsNm"),
+    liveLoad: get("liveLoad") || v("liveLoad"),
+    ratedSpeed: get("ratedSpeed") || v("ratedSpeed"),
+    shuttleFloorCnt: shuttleFloor,
+    applcBeDt: get("applcBeDt"),
+    applcEnDt: get("applcEnDt"),
+  };
 
-      const stts = get("elvtrSttsNm");
-      if (stts.includes("운행중지")) div.classList.add("stopped");
+  const historyData = historyItems.map(h => {
+    const hget = (t)=> h.getElementsByTagName(t)[0]?.textContent || "";
+    return {
+      inspctDt: hget("inspctDt"),
+      inspctInsttNm: hget("inspctInsttNm"),
+      inspctKind: hget("inspctKind"),
+      psexamYn: hget("psexamYn")
+    };
+  });
 
-      div.innerHTML = `
-        <div class="card-header">
-          <h3>${get("buldNm") || v("buldNm")}</h3>
-          <div class="sub">${formatElevatorNo(elevatorNo)} • ${get("elvtrDiv")} • ${kind}</div>
-        </div>
+  // 🔥 저장 실행
+  saveBackup(elevatorNo, basicData, historyData);
 
-        <div class="simple-info clean">
-          <div class="section-title">기본 정보</div>
-          <p>제조업체 : <strong>${get("mnfcturCpnyNm")}</strong></p>
-          <p>모델명 : <strong>${get("elvtrModel")}</strong></p>
-          <p>구동형식 : <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
-          <p>최초설치일자 : <strong>${formatDate(get("frstInstallationDe"))}</strong></p>
-          <p>최근설치일자 : <strong>${formatDate(get("installationDe"))}</strong></p>
-          <p>승강기 상태 : <strong>${get("elvtrSttsNm")}</strong></p>
+  // ===========================
+  // 📌 카드 UI 렌더링
+  // ===========================
+  const div = document.createElement('div');
+  div.className = 'card';
 
-          <div class="section-title">성능 및 스펙 정보</div>
-          <p>정격속력 : <strong>${speedMMin} m/min</strong></p>
-          <p>적재하중 : <strong>${liveLoadDisplay}</strong></p>
-          <p>최대정원 : <strong>${get("ratedCap")}</strong></p>
-          <p>운행층수 : <strong>${shuttleFloor}층</strong></p>
+  const stts = get("elvtrSttsNm");
+  if (stts.includes("운행중지")) div.classList.add("stopped");
 
-          <div class="section-title">설치 정보</div>
-          <p>설치 장소 : <strong>${get("installationPlace")}</strong></p>
-          <p>설치 호기 : <strong>${get("elvtrAsignNo")}</strong></p>
-          <p>주소 : <strong>${get("address1")} / ${get("address2")}</strong></p>
+  div.innerHTML = `
+    <div class="card-header">
+      <h3>${get("buldNm") || v("buldNm")}</h3>
+      <div class="sub">${formatElevatorNo(elevatorNo)} • ${get("elvtrDiv")} • ${kind}</div>
+    </div>
 
-          <div class="section-title">관리 및 유지보수 정보</div>
-          <p>보수업체 : <strong>${get("companyNm")}</strong></p>
-          <p>관리기관 : <strong>${get("inspctInsttNm")}</strong></p>
-          <p>최종 검사일 : <strong>${formatDateDash(latestHistoryDate)}</strong></p>
-          <p>운행 유효기간 : <strong>${formatDate(get("applcBeDt"))} ~ ${formatDate(get("applcEnDt"))}</strong></p>
+    <div class="simple-info clean">
+      <div class="section-title">기본 정보</div>
+      <p>제조업체 : <strong>${get("mnfcturCpnyNm")}</strong></p>
+      <p>모델명 : <strong>${get("elvtrModel")}</strong></p>
+      <p>구동형식 : <strong>${get("elvtrForm")} / ${get("elvtrDetailForm")}</strong></p>
+      <p>최초설치일자 : <strong>${formatDate(get("frstInstallationDe"))}</strong></p>
+      <p>최근설치일자 : <strong>${formatDate(get("installationDe"))}</strong></p>
+      <p>승강기 상태 : <strong>${get("elvtrSttsNm")}</strong></p>
 
-          <div class="btn-row-simple">
-            <button class="btn bottom-btn fav-btn" data-elevator='${elevatorNo}'>⭐ 즐겨찾기</button>
-            <button class="btn bottom-btn view-history-btn"
-              data-history='${encodeURIComponent(JSON.stringify(historyItems.map(h=>{
-                const hget=(t)=>h.getElementsByTagName(t)[0]?.textContent || "";
-                return {
-                  inspctDt:hget("inspctDt"),
-                  inspctInsttNm:hget("inspctInsttNm"),
-                  inspctKind:hget("inspctKind"),
-                  psexamYn:hget("psexamYn")
-                };
-              })))}'>
-              📌 검사이력 보기
-            </button>
-          </div>
-        </div>
-      `;
+      <div class="section-title">성능 및 스펙 정보</div>
+      <p>정격속력 : <strong>${speedMMin} m/min</strong></p>
+      <p>적재하중 : <strong>${liveLoadDisplay}</strong></p>
+      <p>최대정원 : <strong>${get("ratedCap")}</strong></p>
+      <p>운행층수 : <strong>${shuttleFloor}층</strong></p>
 
-      list.appendChild(div);
+      <div class="section-title">설치 정보</div>
+      <p>설치 장소 : <strong>${get("installationPlace")}</strong></p>
+      <p>설치 호기 : <strong>${get("elvtrAsignNo")}</strong></p>
+      <p>주소 : <strong>${get("address1")} / ${get("address2")}</strong></p>
 
-      // 즐겨찾기 상태 적용
-      const favBtn = div.querySelector(".fav-btn");
-      const favs = getFavorites();
-      if (favs.some(f=>f.elevatorNo===elevatorNo)) favBtn.textContent = "★";
-    }
+      <div class="section-title">관리 및 유지보수 정보</div>
+      <p>보수업체 : <strong>${get("companyNm")}</strong></p>
+      <p>관리기관 : <strong>${get("inspctInsttNm")}</strong></p>
+      <p>최종 검사일 : <strong>${formatDateDash(latestHistoryDate)}</strong></p>
+      <p>운행 유효기간 : <strong>${formatDate(get("applcBeDt"))} ~ ${formatDate(get("applcEnDt"))}</strong></p>
+
+      <div class="btn-row-simple">
+        <button class="btn bottom-btn fav-btn" data-elevator='${elevatorNo}'>⭐ 즐겨찾기</button>
+        <button class="btn bottom-btn view-history-btn"
+          data-history='${encodeURIComponent(JSON.stringify(historyData))}'>
+          📌 검사이력 보기
+        </button>
+      </div>
+    </div>
+  `;
+
+  list.appendChild(div);
+
+  // 즐겨찾기 적용
+  const favBtn = div.querySelector(".fav-btn");
+  const favs = getFavorites();
+  if (favs.some(f=>f.elevatorNo===elevatorNo)) favBtn.textContent = "★";
+}
+
 
   }catch (err) {
   console.warn("🚨 API 장애 → 비상백업 로딩");
